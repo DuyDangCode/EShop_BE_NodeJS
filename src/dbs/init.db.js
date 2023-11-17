@@ -3,7 +3,7 @@ import chalk from "chalk";
 const CONNECT_STRING = 'mongodb://localhost:27017/eshopDEV';
 
 const connectMongoDb = () => {
-  mongoose.connect(CONNECT_STRING).then(_ => console.log('E-Shop:: Connect mongodb success'));
+  mongoose.connect(CONNECT_STRING).then(_ => console.log(chalk.green('E-Shop::: Connect mongodb success'))).catch(err => console.log(chalk.red(`E-Shop:::Err::: ${err}`)));
 }
 
 
