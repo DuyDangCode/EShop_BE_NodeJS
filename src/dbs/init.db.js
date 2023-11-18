@@ -1,23 +1,29 @@
 import mongoose from "mongoose";
 import chalk from "chalk";
+import { countConnet } from "../helpers/check.connect.js";
+
 const CONNECT_STRING = 'mongodb://localhost:27017/eshopDEV';
 
 const connectMongoDb = () => {
-  mongoose.connect(CONNECT_STRING).then(_ => console.log(chalk.green('E-Shop::: Connect mongodb success'))).catch(err => console.log(chalk.red(`E-Shop:::Err::: ${err}`)));
+  mongoose.connect(CONNECT_STRING, { maxPoolSize: 50 }).then(_ => { console.log(chalk.green('E-Shop::: Connect mongodb success')); countConnet() }).catch(err => console.log(chalk.red(`E-Shop:::Err::: ${err}`)));
 }
 
+const sayHello = () => {
+  console.log("Hello this is from test!!!");
+}
 
 const actions = {
-  mongodb: connectMongoDb(),
+  mongodb: connectMongoDb,
+  test: sayHello,
 }
 
 class Database {
-  constructor() {
-    this.connect();
+  constructor(type = 'mongodb') {
+    this.connect(type);
   }
 
-  connect(type = 'mongodb') {
-    actions[type];
+  connect(type) {
+    actions[type]();
   }
 
   static getInstance() {
