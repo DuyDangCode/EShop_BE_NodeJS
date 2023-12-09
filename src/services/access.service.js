@@ -27,6 +27,10 @@ class AccessService {
 
     //return tokens when create sucessfull
     if (newUser) {
+      const { privateKey, publicKey } = crypto.generateKeyPairSync(
+        'rsa',
+        options
+      );
     }
   };
 
