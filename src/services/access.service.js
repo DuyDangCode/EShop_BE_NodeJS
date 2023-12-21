@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { BadRequestError, ConfigRequestError } from '../core/error.res.js';
 import userModel from '../models/user.model.js';
 import bcrypt from 'bcrypt';
+import KeyService from './key.service.js';
 
 const ROLES = {
   user: '001',
@@ -27,10 +28,29 @@ class AccessService {
 
     //return tokens when create sucessfull
     if (newUser) {
-      const { privateKey, publicKey } = crypto.generateKeyPairSync(
-        'rsa',
-        options
+      const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 4096,
+        publicKeyEncoding: {
+          type: 'spki',
+          format: 'pem',
+        },
+        privateKeyEncoding: {
+          type: 'pkcs8',
+          format: 'pem',
+        },
+      });
+
+      const publicKeyString = await KeyService.createKeyToken(
+        newUser._id,
+        publicKey
       );
+
+      if (!publicKeyString) {
+        throw new BadRequestError(500);
+      }
+
+      const publishKeyObject = crypto.createPublicKey(publicKeyString);
+      const payload = { userId: newUser._id, email };
     }
   };
 
