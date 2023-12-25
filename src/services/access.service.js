@@ -12,14 +12,18 @@ const ROLES = {
 class AccessService {
   static signup = async ({ username, email, password }) => {
     //check user exist
-    const holderUser = userModel.findOne({ username: username }).lean();
+    const holderUser = await userModel.findOne({ email: email }).lean();
     if (holderUser) {
       throw new BadRequestError(400, 'User already exist');
     }
 
+    // hash password
+    const passwordString =
+      typeof password === 'string' ? password : password.toString();
+    const passwordHash = await bcrypt.hash(passwordString, 10);
+
     //create new user
-    const passwordHash = bcrypt.hash(password, 10);
-    const newUser = userModel.create({
+    const newUser = await userModel.create({
       username: username,
       email: email,
       password: passwordHash,
@@ -28,17 +32,23 @@ class AccessService {
 
     //return tokens when create sucessfull
     if (newUser) {
-      const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-          type: 'spki',
-          format: 'pem',
-        },
-        privateKeyEncoding: {
-          type: 'pkcs8',
-          format: 'pem',
-        },
-      });
+      const { privateKey, publicKey } = await crypto.generateKeyPairSync(
+        'rsa',
+        {
+          modulusLength: 4096,
+          publicKeyEncoding: {
+            type: 'spki',
+            format: 'pem',
+          },
+          privateKeyEncoding: {
+            type: 'pkcs8',
+            format: 'pem',
+          },
+        }
+      );
+
+      console.log('privateKey', privateKey);
+      console.log('publicKey', publicKey);
 
       const publicKeyString = await KeyService.createKeyToken(
         newUser._id,

@@ -1,10 +1,10 @@
-import keyModel from '../models/key.model';
+import keyTokenModel from '../models/keyToken.model.js';
 
 class KeyService {
   static async createKeyToken({ userId, publicKey }) {
     try {
       const publicKeyString = publicKey.toString();
-      const tokens = await keyModel.create({
+      const tokens = await keyTokenModel.create({
         user: userId,
         publicKey: publicKeyString,
       });

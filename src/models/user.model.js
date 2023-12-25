@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['activate' | 'inactivate'],
+      enum: ['activate', 'inactivate'],
       default: 'activate',
     },
     verify: {

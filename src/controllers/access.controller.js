@@ -1,11 +1,11 @@
 import AccessService from '../services/access.service.js';
 
 class AccessController {
-  static signup = async (req, res, next) => {
-    await AccessService.signup();
+  static signup = async (req, res) => {
+    await AccessService.signup(req.body);
   };
 
-  static signin = async (req, res, next) => {
+  static signin = async (req, res) => {
     await AccessService.signin();
   };
 }

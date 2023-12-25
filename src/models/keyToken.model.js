@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
-const COLLECTION_NAME = 'users';
-const DOCUMENT_NAME = 'user';
+const COLLECTION_NAME = 'tokens';
+const DOCUMENT_NAME = 'token';
 
 const keyTokenSchema = mongoose.Schema(
   {

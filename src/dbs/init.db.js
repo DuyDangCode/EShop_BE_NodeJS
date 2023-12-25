@@ -15,13 +15,8 @@ const connectMongoDb = () => {
     .catch((err) => console.log(chalk.red(`E-Shop:::Err::: ${err}`)));
 };
 
-const sayHello = () => {
-  console.log('Hello this is from test!!!');
-};
-
 const actions = {
   mongodb: connectMongoDb,
-  test: sayHello,
 };
 
 class Database {
@@ -41,7 +36,4 @@ class Database {
   }
 }
 
-
-
-
-
+export default Database;
