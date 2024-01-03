@@ -5,7 +5,7 @@ const DOCUMENT_NAME = 'token';
 
 const keyTokenSchema = mongoose.Schema(
   {
-    user: {
+    userId: {
       type: mongoose.Schema.ObjectId,
       require: true,
       ref: 'user',

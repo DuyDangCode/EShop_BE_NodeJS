@@ -1,27 +1,21 @@
 import JWT from 'jsonwebtoken';
+import { BadRequestError } from '../core/error.res.js';
 
-const createTokenPair = async (payload, publicKey, privateKey) => {
+const createTokenPair = (payload, privateKey) => {
   try {
-    const accessToken = await JWT.sign(payload, privateKey, {
+    const accessToken = JWT.sign(payload, privateKey, {
       algorithm: 'RS256',
       expiresIn: '1 days',
     });
 
-    const refreshToken = await JWT.sign(payload, privateKey, {
+    const refreshToken = JWT.sign(payload, privateKey, {
       algorithm: 'RS256',
-      expiresIn: '365 days',
+      expiresIn: '30 days',
     });
-
-    JWT.verify(accessToken, publicKey, (err, decode) => {
-      if (err) {
-        console.log(`err:::CreateTokenPair::: ${err}`);
-      } else {
-        console.log('Decode:::', decode);
-      }
-    });
-
-    return { accessToken, refreshToken };
-  } catch (error) {}
+    return accessToken && refreshToken ? { accessToken, refreshToken } : null;
+  } catch (error) {
+    throw new BadRequestError(500);
+  }
 };
 
 export { createTokenPair };

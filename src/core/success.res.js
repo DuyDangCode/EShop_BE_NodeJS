@@ -21,7 +21,7 @@ class SuccessRes {
   }
 
   send(res, hearders = {}) {
-    return res.status(this.statuscode).json(this);
+    return res.status(this.status).json(this);
   }
 }
 
@@ -34,7 +34,7 @@ class OK extends SuccessRes {
 class CREATED extends SuccessRes {
   constructor({
     message,
-    statusCode = statusCode.CREATED,
+    statusCode = StatusCode.CREATED,
     reasonStatusCode = ReasonStatusCode.CREATED,
     metadata = {},
     options = {},

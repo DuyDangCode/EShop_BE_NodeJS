@@ -3,65 +3,76 @@ import { BadRequestError, ConfigRequestError } from '../core/error.res.js';
 import userModel from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import KeyService from './key.service.js';
+import crypto from 'crypto';
+import { createTokenPair } from '../auth/authUtils.js';
+import { USER_ROLES } from '../constrant/user.constrant.js';
 
-const ROLES = {
-  user: '001',
-  admin: '002',
-  write: '003',
-};
 class AccessService {
   static signup = async ({ username, email, password }) => {
+    if (!username || !email || !password)
+      throw new BadRequestError(400, 'Not find username, email or password');
+
     //check user exist
-    const holderUser = await userModel.findOne({ email: email }).lean();
-    if (holderUser) {
+    const holderUserWithEmail = await userModel
+      .findOne({ email: email })
+      .lean();
+    const holderUserWithUsername = await userModel
+      .findOne({ username: username })
+      .lean();
+    if (holderUserWithEmail || holderUserWithUsername) {
       throw new BadRequestError(400, 'User already exist');
     }
 
     // hash password
     const passwordString =
       typeof password === 'string' ? password : password.toString();
-    const passwordHash = await bcrypt.hash(passwordString, 10);
+    const passwordHash = await bcrypt.hash(passwordString, 5);
 
     //create new user
     const newUser = await userModel.create({
       username: username,
       email: email,
       password: passwordHash,
-      roles: [ROLES.admin],
+      roles: [USER_ROLES.admin],
     });
 
+    if (!newUser) throw new BadRequestError(500, 'Create user fail.');
+
     //return tokens when create sucessfull
-    if (newUser) {
-      const { privateKey, publicKey } = await crypto.generateKeyPairSync(
-        'rsa',
-        {
-          modulusLength: 4096,
-          publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem',
-          },
-          privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem',
-          },
-        }
-      );
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    });
 
-      console.log('privateKey', privateKey);
-      console.log('publicKey', publicKey);
+    const publicKeyString = await KeyService.createKeyToken({
+      userId: newUser._id,
+      publicKey: publicKey,
+    });
 
-      const publicKeyString = await KeyService.createKeyToken(
-        newUser._id,
-        publicKey
-      );
-
-      if (!publicKeyString) {
-        throw new BadRequestError(500);
-      }
-
-      const publishKeyObject = crypto.createPublicKey(publicKeyString);
-      const payload = { userId: newUser._id, email };
+    if (!publicKeyString) {
+      throw new BadRequestError(500);
     }
+
+    const payload = { userId: newUser._id };
+    const tokens = createTokenPair(payload, privateKey);
+
+    if (!tokens) {
+      throw new BadRequestError(500);
+    }
+
+    return {
+      userId: newUser._id,
+      roles: newUser.roles,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   };
 
   static signin = async ({ username, password }) => {
