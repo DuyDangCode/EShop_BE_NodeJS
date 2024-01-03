@@ -50,22 +50,20 @@ class AccessService {
         format: 'pem',
       },
     });
+    if (!privateKey || !publicKey)
+      throw BadRequestError(500, 'Create key fail');
 
-    const publicKeyString = await KeyService.createKeyToken({
-      userId: newUser._id,
-      publicKey: publicKey,
-    });
-
-    if (!publicKeyString) {
-      throw new BadRequestError(500);
-    }
-
+    //create access token and refresh token
     const payload = { userId: newUser._id };
     const tokens = createTokenPair(payload, privateKey);
+    if (!tokens) throw new BadRequestError(500, 'Create tokens fail');
 
-    if (!tokens) {
-      throw new BadRequestError(500);
-    }
+    //save token
+    await KeyService.createKeyToken({
+      userId: newUser._id,
+      publicKey: publicKey,
+      refeshToken: tokens.refreshToken,
+    });
 
     return {
       userId: newUser._id,
@@ -76,19 +74,62 @@ class AccessService {
   };
 
   static signin = async ({ username, password }) => {
-    const user = userModel.find({ username: username }).lean();
+    if (!username || !password)
+      throw new BadRequestError(400, 'Not find username or password');
+
+    const user = await userModel
+      .findOne({ username: username })
+      .select({ username: 1, password: 1, roles: 1 })
+      .lean();
 
     //check user exist
-    if (user) {
-      throw new BadRequestError(400);
-    }
+    if (!user) throw new BadRequestError(400, 'User not found');
 
-    const isLogin = bcrypt.compareSync(password, user.password);
+    const {
+      _id: userId,
+      username: savedUsername,
+      password: savedPassword,
+      roles: roles,
+    } = user;
+    const isCorrectPassword = bcrypt.compareSync(password, savedPassword);
 
     //check password
-    if (!isLogin) {
-      throw new BadRequestError(400);
-    }
+    if (!isCorrectPassword)
+      throw new BadRequestError(400, 'Password was wrong');
+
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    });
+
+    const payload = {
+      userId: userId,
+    };
+
+    const { accessToken, refreshToken } = createTokenPair(payload, privateKey);
+    if (!accessToken || !refreshToken)
+      throw BadRequestError(500, 'Create tokens fail');
+
+    //save tokens
+    await KeyService.createKeyToken({
+      userId: userId,
+      publicKey,
+      refeshToken: refreshToken,
+    });
+
+    return {
+      userId: userId,
+      roles: roles,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    };
   };
 }
 
