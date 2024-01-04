@@ -5,6 +5,9 @@ import { checkOverload, countConnet } from './helpers/check.connect.js';
 import routers from './routers/index.js';
 import * as dotenv from 'dotenv';
 import Database from './dbs/init.db.js';
+import compression from 'compression';
+import helmet from 'helmet';
+import morgan from 'morgan';
 
 dotenv.config();
 Database.getInstance();
@@ -15,7 +18,16 @@ const app = express();
 
 // countConnet();
 // checkOverload();
+
+app.use(morgan('dev'));
+app.use(compression());
+app.use(helmet());
 app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 app.use('/', routers);
 
