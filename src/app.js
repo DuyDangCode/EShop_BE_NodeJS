@@ -8,6 +8,8 @@ import Database from './dbs/init.db.js';
 import compression from 'compression';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import { checkApiKey, checkPermission } from './auth/checkAuth.js';
+import { PERMISSIONS } from './constrant/apiKey.constrant.js';
 
 dotenv.config();
 Database.getInstance();
@@ -18,7 +20,6 @@ const app = express();
 
 // countConnet();
 // checkOverload();
-
 app.use(morgan('dev'));
 app.use(compression());
 app.use(helmet());
@@ -28,6 +29,8 @@ app.use(
     extended: true,
   })
 );
+app.use(checkApiKey);
+app.use(checkPermission(PERMISSIONS.all));
 
 app.use('/', routers);
 
