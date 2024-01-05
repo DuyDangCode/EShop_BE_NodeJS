@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const COLLECTION_NAME = 'tokens';
 const DOCUMENT_NAME = 'token';
 
-const keyTokenSchema = mongoose.Schema(
+const keyTokenSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.ObjectId,

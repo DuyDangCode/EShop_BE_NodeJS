@@ -131,6 +131,11 @@ class AccessService {
       refreshToken: refreshToken,
     };
   };
+
+  static signout = async (keys) => {
+    const deletedKey = await KeyService.removeById(keys._id);
+    return deletedKey;
+  };
 }
 
 export default AccessService;

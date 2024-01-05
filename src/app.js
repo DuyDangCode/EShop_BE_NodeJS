@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { checkApiKey, checkPermission } from './auth/checkAuth.js';
 import { PERMISSIONS } from './constrant/apiKey.constrant.js';
+import { asyncHandler } from './helpers/index.helper.js';
 
 dotenv.config();
 Database.getInstance();
@@ -32,6 +33,7 @@ app.use(
 app.use(checkApiKey);
 app.use(checkPermission(PERMISSIONS.all));
 
+//define route
 app.use('/', routers);
 
 //handle error
@@ -44,7 +46,7 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
   const statusCode = error.status || 500;
-  console.log(`E-Shop:::Error::: ${error.message}`);
+  console.error(`E-Shop:::Error::: ${error.message}`);
   return res.status(statusCode).json({
     status: 'error',
     code: statusCode,
