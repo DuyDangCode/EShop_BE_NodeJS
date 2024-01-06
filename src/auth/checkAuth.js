@@ -43,10 +43,11 @@ const authentication = asyncHandler(async (req, res, next) => {
     // compare userId in access token with userId in token form db
     if (userId !== payload.userId) throw new BadRequestError();
     // set token
-    req.keys = keysFormDb;
+    // req.keys = keysFormDb;
+    req.keys = token;
     return next();
   } catch (error) {
-    throw new BadRequestError();
+    throw new BadRequestError(400, 'aa');
   }
 });
 

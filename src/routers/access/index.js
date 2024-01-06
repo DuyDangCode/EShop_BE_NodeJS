@@ -10,4 +10,8 @@ accessRouter.post('/users/signin', asyncHandler(AccessController.signin));
 
 accessRouter.use(authentication);
 accessRouter.post('/users/signout', asyncHandler(AccessController.signout));
+accessRouter.post(
+  '/users/handleRefreshtoken',
+  asyncHandler(AccessController.handleRefreshToken)
+);
 export default accessRouter;

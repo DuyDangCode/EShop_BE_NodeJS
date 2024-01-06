@@ -18,4 +18,8 @@ const createTokenPair = (payload, privateKey) => {
   }
 };
 
-export { createTokenPair };
+const verifyJWT = (payload, key) => {
+  return JWT.verify(payload, key);
+};
+
+export { createTokenPair, verifyJWT };

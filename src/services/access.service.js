@@ -1,11 +1,17 @@
 import chalk from 'chalk';
-import { BadRequestError, ConfigRequestError } from '../core/error.res.js';
+import {
+  AuthFailError,
+  BadRequestError,
+  ConfigRequestError,
+  ForbiddenError,
+} from '../core/error.res.js';
 import userModel from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 import KeyService from './key.service.js';
 import crypto from 'crypto';
-import { createTokenPair } from '../auth/authUtils.js';
+import { createTokenPair, verifyJWT } from '../auth/authUtils.js';
 import { USER_ROLES } from '../constrant/user.constrant.js';
+import UserService from './user.service.js';
 
 class AccessService {
   static signup = async ({ username, email, password }) => {
@@ -135,6 +141,68 @@ class AccessService {
   static signout = async (keys) => {
     const deletedKey = await KeyService.removeById(keys._id);
     return deletedKey;
+  };
+
+  static handleRefreshToken = async (refreshToken) => {
+    //check refreshtoken is refreshtokenUsed
+    const foundToken = await KeyService.findByRefreshTokenUsed(refreshToken);
+
+    if (foundToken) {
+      const { userId } = verifyJWT(refreshToken, foundKey.publicKey);
+      await KeyService.removeById(foundToken._id);
+      throw new ForbiddenError(403, 'Some thing wrong');
+    }
+
+    //get tokens in db
+    const holderToken = await KeyService.findByRefreshToken(refreshToken);
+    if (!holderToken) throw new AuthFailError(403, 'Token not exist');
+
+    //verify refresh token
+    const verifiedToken = verifyJWT(refreshToken, holderToken.publicKey);
+
+    //compare userId which is verified form refresh token with userId in db
+
+    if (verifiedToken.userId != holderToken.userId)
+      throw new AuthFailError(403, 'Can verify token');
+
+    //check userId exist in db
+    const holderUser = UserService.findById(verifiedToken.userId);
+    if (!holderUser) throw new AuthFailError(403, 'Not found user');
+
+    //create tokens
+    const payload = { userId: verifiedToken.userId };
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        type: 'spki',
+        format: 'pem',
+      },
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'pem',
+      },
+    });
+    const tokens = createTokenPair(payload, privateKey);
+
+    //update refreshtokenUsed
+    const ac = await KeyService.updatePublickey(holderToken._id, publicKey);
+    console.log(ac);
+    const refreshTokensUsed = structuredClone(holderToken.refreshTokensUsed);
+    refreshTokensUsed.push(refreshToken);
+    // console.log(refreshTokensUsed);
+    const ab = await KeyService.updateRefreshTokenUsed(
+      holderToken._id,
+      refreshTokensUsed
+    );
+    console.log(ab);
+    await KeyService.updateRefreshToken(holderToken._id, tokens.refreshToken);
+
+    return {
+      userId: holderUser.userId,
+      roles: holderUser.roles,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    };
   };
 }
 
