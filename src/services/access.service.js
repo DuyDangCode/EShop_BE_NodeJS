@@ -166,7 +166,7 @@ class AccessService {
       throw new AuthFailError(403, 'Can verify token');
 
     //check userId exist in db
-    const holderUser = UserService.findById(verifiedToken.userId);
+    const holderUser = await UserService.findById(verifiedToken.userId);
     if (!holderUser) throw new AuthFailError(403, 'Not found user');
 
     //create tokens
@@ -185,17 +185,19 @@ class AccessService {
     const tokens = createTokenPair(payload, privateKey);
 
     //update refreshtokenUsed
-    const ac = await KeyService.updatePublickey(holderToken._id, publicKey);
-    console.log(ac);
+    await KeyService.updatePublickey(holderToken._id, publicKey);
     const refreshTokensUsed = structuredClone(holderToken.refreshTokensUsed);
     refreshTokensUsed.push(refreshToken);
-    // console.log(refreshTokensUsed);
-    const ab = await KeyService.updateRefreshTokenUsed(
-      holderToken._id,
-      refreshTokensUsed
-    );
-    console.log(ab);
+    await KeyService.updateRefreshTokenUsed(holderToken._id, refreshTokensUsed);
     await KeyService.updateRefreshToken(holderToken._id, tokens.refreshToken);
+    // await holderToken.updateOne({
+    //   $set: {
+    //     refreshToken: tokens.refreshToken,
+    //   },
+    //   $addToSet: {
+    //     refreshTokenUsed: refreshToken,
+    //   },
+    // });
 
     return {
       userId: holderUser.userId,

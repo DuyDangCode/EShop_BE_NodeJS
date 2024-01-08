@@ -48,19 +48,19 @@ class KeyService {
 
   static async updateRefreshTokenUsed(_id, refreshTokenUsed) {
     return await keyTokenModel
-      .updateOne({ _id: _id }, { refreshTokenUsed: refreshTokenUsed })
+      .findOneAndUpdate({ _id: _id }, { refreshTokenUsed: refreshTokenUsed })
       .lean();
   }
 
   static async updateRefreshToken(_id, refeshToken) {
     return await keyTokenModel
-      .updateOne({ _id: _id }, { refreshToken: refeshToken })
+      .findOneAndUpdate({ _id: _id }, { refreshToken: refeshToken })
       .lean();
   }
 
   static async updatePublickey(_id, publicKey) {
     return await keyTokenModel
-      .updateOne({ _id: _id }, { publicKey: publicKey })
+      .findOneAndUpdate({ _id: _id }, { publicKey: publicKey })
       .lean();
   }
 }
