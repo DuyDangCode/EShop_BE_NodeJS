@@ -63,6 +63,27 @@ class KeyService {
       .findOneAndUpdate({ _id: _id }, { publicKey: publicKey })
       .lean();
   }
+
+  static async updateTokens(
+    id,
+    userId,
+    publicKey,
+    refreshTokenUsed,
+    refreshToken
+  ) {
+    return await keyTokenModel
+      .findByIdAndUpdate(
+        { _id: id },
+        {
+          userId: userId,
+          publicKey: publicKey,
+          refreshTokensUsed: refreshTokenUsed,
+          refeshToken: refreshToken,
+        },
+        { upsert: true }
+      )
+      .lean();
+  }
 }
 
 export default KeyService;

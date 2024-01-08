@@ -185,11 +185,19 @@ class AccessService {
     const tokens = createTokenPair(payload, privateKey);
 
     //update refreshtokenUsed
-    await KeyService.updatePublickey(holderToken._id, publicKey);
     const refreshTokensUsed = structuredClone(holderToken.refreshTokensUsed);
     refreshTokensUsed.push(refreshToken);
-    await KeyService.updateRefreshTokenUsed(holderToken._id, refreshTokensUsed);
-    await KeyService.updateRefreshToken(holderToken._id, tokens.refreshToken);
+    // await KeyService.updatePublickey(holderToken._id, publicKey);
+    // await KeyService.updateRefreshTokenUsed(holderToken._id, refreshTokensUsed);
+    // await KeyService.updateRefreshToken(holderToken._id, tokens.refreshToken);
+    await KeyService.updateTokens(
+      holderToken._id,
+      holderToken.userId,
+      publicKey,
+      refreshTokensUsed,
+      tokens.refreshToken
+    );
+
     // await holderToken.updateOne({
     //   $set: {
     //     refreshToken: tokens.refreshToken,
