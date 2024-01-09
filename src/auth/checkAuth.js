@@ -4,6 +4,7 @@ import { asyncHandler } from '../helpers/index.helper.js';
 import { findById } from '../services/apiKey.service.js';
 import KeyService from '../services/key.service.js';
 import JWT from 'jsonwebtoken';
+import { verifyJWT } from './authUtils.js';
 
 const checkApiKey = async (req, res, next) => {
   const key = req.headers[HEADERS.API_KEY]?.toString();
@@ -26,29 +27,34 @@ const checkPermission = (permission) => {
   };
 };
 
+const handleToken = (userId, req, token, keyStore, next) => {
+  try {
+    const decodeToken = verifyJWT(token, keyStore.publicKey);
+    if (userId !== decodeToken.userId)
+      throw new BadRequestError(400, 'Invalid token');
+    req.token = token;
+    req.keyStore = keyStore;
+    return next();
+  } catch (error) {
+    console.error(error);
+    throw new BadRequestError(400, 'Invalid token');
+  }
+};
+
 const authentication = asyncHandler(async (req, res, next) => {
   // check userId missing
   const userId = req.headers[HEADERS.CLIENT]?.toString();
   if (!userId) throw new BadRequestError();
   // check token missing
-  const token = req.headers[HEADERS.AUTHORIZATION]?.toString();
+  const token = req.headers[HEADERS.REFRESH_TOKEN]
+    ? req.headers[HEADERS.REFRESH_TOKEN].toString()
+    : req.headers[HEADERS.AUTHORIZATION]?.toString();
   if (!token) throw new BadRequestError();
   // get keys in dbs
   const keysFormDb = await KeyService.findByUserId(userId);
-  // console.log(`key: ${keysFormDb}`, keysFormDb);
   if (!keysFormDb) throw new BadRequestError();
-  try {
-    // verify access tokens
-    const payload = JWT.verify(token, keysFormDb.publicKey);
-    // compare userId in access token with userId in token form db
-    if (userId !== payload.userId) throw new BadRequestError();
-    // set token
-    // req.keys = keysFormDb;
-    req.keys = token;
-    return next();
-  } catch (error) {
-    throw new BadRequestError(400, 'aa');
-  }
+
+  handleToken(userId, req, token, keysFormDb, next);
 });
 
 export { checkApiKey, checkPermission, authentication };

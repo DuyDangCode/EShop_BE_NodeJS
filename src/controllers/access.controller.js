@@ -19,7 +19,7 @@ class AccessController {
   static signout = async (req, res) => {
     return new OK({
       message: 'Logout successfully',
-      metadata: await AccessService.signout(req.keys),
+      metadata: await AccessService.signout(req.keyStore),
     }).send(res);
   };
 
@@ -27,7 +27,7 @@ class AccessController {
     // console.log(req.keys);
     return new OK({
       message: 'Login successfully',
-      metadata: await AccessService.handleRefreshToken(req.keys),
+      metadata: await AccessService.handleRefreshToken(req.token),
     }).send(res);
   };
 }
