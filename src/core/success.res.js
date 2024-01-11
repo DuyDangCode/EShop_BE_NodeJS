@@ -1,22 +1,15 @@
-const StatusCode = {
-  OK: 200,
-  CREATED: 201,
-};
-
-const ReasonStatusCode = {
-  OK: 'success',
-  CREATED: 'created',
-};
+import { statusCodes } from './httpStatusCode/statusCodes.js';
+import { reasonPharses } from './httpStatusCode/reasonPhrases.js';
 
 class SuccessRes {
   constructor({
     message,
-    statuscode = StatusCode.OK,
-    reasonStatusCode = ReasonStatusCode.OK,
+    status = statusCodes.OK,
+    reason = reasonPharses.OK,
     metadata = {},
   }) {
-    this.message = message || reasonStatusCode;
-    this.status = statuscode;
+    this.message = message || reason;
+    this.status = status;
     this.metadata = metadata;
   }
 
@@ -34,12 +27,12 @@ class OK extends SuccessRes {
 class CREATED extends SuccessRes {
   constructor({
     message,
-    statusCode = StatusCode.CREATED,
-    reasonStatusCode = ReasonStatusCode.CREATED,
+    status = statusCodes.CREATED,
+    reason = reasonPharses.CREATED,
     metadata = {},
     options = {},
   }) {
-    super({ message, statusCode, reasonStatusCode, metadata });
+    super({ message, status, reason, metadata });
     this.options = options;
   }
 }
