@@ -4,10 +4,10 @@ const DOCUMENT_NAME = 'product';
 const COLLECTION_NAME = 'products';
 const LAPTOP_DOCUMENT = 'laptop';
 const LAPTOP_COLLECTION = 'laptops';
-const PC_DOCUMENT = 'laptop';
-const PC_COLLECTION = 'laptops';
-const SCREEN_DOCUMENT = 'laptop';
-const SCREEN_COLLECTION = 'laptops';
+const PC_DOCUMENT = 'pc';
+const PC_COLLECTION = 'pcs';
+const SCREEN_DOCUMENT = 'screen';
+const SCREEN_COLLECTION = 'screens';
 
 const productSchema = new mongoose.Schema(
   {

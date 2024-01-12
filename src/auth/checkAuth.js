@@ -8,7 +8,7 @@ import { verifyJWT } from './authUtils.js';
 
 const checkApiKey = async (req, res, next) => {
   const key = req.headers[HEADERS.API_KEY]?.toString();
-  if (!key) next(new BadRequestError());
+  if (!key) next(new BadRequestError(400, 'Not found key'));
   const objKey = await findById(key);
   if (!objKey) next(new BadRequestError());
   req.objKey = objKey;
@@ -44,15 +44,17 @@ const handleToken = (userId, req, token, keyStore, next) => {
 const authentication = asyncHandler(async (req, res, next) => {
   // check userId missing
   const userId = req.headers[HEADERS.CLIENT]?.toString();
-  if (!userId) throw new BadRequestError();
+  if (!userId) throw new BadRequestError(400, 'Not find client id');
+
   // check token missing
   const token = req.headers[HEADERS.REFRESH_TOKEN]
     ? req.headers[HEADERS.REFRESH_TOKEN].toString()
     : req.headers[HEADERS.AUTHORIZATION]?.toString();
-  if (!token) throw new BadRequestError();
+  if (!token) throw new BadRequestError(400, 'Not find token');
+
   // get keys in dbs
   const keysFormDb = await KeyService.findByUserId(userId);
-  if (!keysFormDb) throw new BadRequestError();
+  if (!keysFormDb) throw new BadRequestError(400, 'User not registed');
 
   handleToken(userId, req, token, keysFormDb, next);
 });

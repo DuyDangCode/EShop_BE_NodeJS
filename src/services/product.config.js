@@ -1,4 +1,4 @@
-import { Laptop, PC, Screen } from '../classes/product.class';
+import { Laptop, PC, Screen } from './product.class.js';
 
 export default {
   Laptop: Laptop,

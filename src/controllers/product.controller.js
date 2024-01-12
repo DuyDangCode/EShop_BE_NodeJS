@@ -1,6 +1,6 @@
-import { BadRequestError } from '../core/error.res';
-import { CREATED } from '../core/success.res';
-import ProductService from '../services/product.service';
+import { BadRequestError } from '../core/error.res.js';
+import { CREATED } from '../core/success.res.js';
+import ProductService from '../services/product.service.js';
 class ProductController {
   static async createProduct(req, res) {
     return new CREATED({
