@@ -1,4 +1,5 @@
 import mongoose, { Mongoose } from 'mongoose';
+import slugify from 'slugify';
 
 const DOCUMENT_NAME = 'product';
 const COLLECTION_NAME = 'products';
@@ -31,6 +32,9 @@ const productSchema = new mongoose.Schema(
       type: Number,
       require: true,
     },
+    product_slug: {
+      type: String,
+    },
     product_type: {
       type: String,
       require: true,
@@ -39,12 +43,41 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       require: true,
     },
+    product_rating: {
+      type: Number,
+      default: 4.5,
+      max: [5, 'Rating must be less than 5'],
+      min: [1, 'Rating must be more than 1'],
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    product_variations: {
+      type: Array,
+      default: [],
+    },
+    // this not to show
+    isDart: {
+      type: Boolean,
+      default: true,
+      index: true,
+      select: false,
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
+      index: true,
+      select: false,
+    },
   },
   {
     timestamps: true,
     collection: COLLECTION_NAME,
   }
 );
+
+productSchema.pre('save', function (next) {
+  this.product_slug = slugify(this.product_name, { lower: true });
+  next();
+});
 
 const laptopSchema = new mongoose.Schema(
   {
