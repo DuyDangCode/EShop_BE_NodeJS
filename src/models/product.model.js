@@ -55,7 +55,7 @@ const productSchema = new mongoose.Schema(
       default: [],
     },
     // this not to show
-    isDart: {
+    isDraft: {
       type: Boolean,
       default: true,
       index: true,

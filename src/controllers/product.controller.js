@@ -1,5 +1,5 @@
 import { BadRequestError } from '../core/error.res.js';
-import { CREATED } from '../core/success.res.js';
+import { CREATED, OK } from '../core/success.res.js';
 import ProductService from '../services/product.service.js';
 class ProductController {
   static async createProduct(req, res) {
@@ -9,6 +9,20 @@ class ProductController {
         req.body.product_type,
         req.body
       ),
+    }).send(res);
+  }
+
+  static async getAllDraft(req, res) {
+    return new OK({
+      message: 'Get all product successful',
+      metadata: await ProductService.getAllDraft(req.query),
+    }).send(res);
+  }
+
+  static async getAllPublished(req, res) {
+    return new OK({
+      message: 'Get all product successful',
+      metadata: await ProductService.getAllPublished(req.query),
     }).send(res);
   }
 }

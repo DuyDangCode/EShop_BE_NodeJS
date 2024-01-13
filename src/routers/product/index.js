@@ -5,7 +5,12 @@ import { asyncHandler } from '../../helpers/index.helper.js';
 
 const productRouter = express.Router();
 
+productRouter.get(
+  '/published/all',
+  asyncHandler(ProductController.getAllPublished)
+);
 productRouter.use(authentication);
 productRouter.post('', asyncHandler(ProductController.createProduct));
+productRouter.get('/draft/all', asyncHandler(ProductController.getAllDraft));
 
 export default productRouter;

@@ -5,13 +5,13 @@ import { authentication } from '../../auth/checkAuth.js';
 
 const accessRouter = express.Router();
 
-accessRouter.post('/users/signup', asyncHandler(AccessController.signup));
-accessRouter.post('/users/signin', asyncHandler(AccessController.signin));
+accessRouter.post('/signup', asyncHandler(AccessController.signup));
+accessRouter.post('/signin', asyncHandler(AccessController.signin));
 
 accessRouter.use(authentication);
-accessRouter.post('/users/signout', asyncHandler(AccessController.signout));
+accessRouter.post('/signout', asyncHandler(AccessController.signout));
 accessRouter.post(
-  '/users/handleRefreshtoken',
+  '/handleRefreshtoken',
   asyncHandler(AccessController.handleRefreshToken)
 );
 export default accessRouter;

@@ -1,4 +1,5 @@
 import { BadRequestError } from '../core/error.res.js';
+import productRepo from '../models/repositories/product.repo.js';
 import productConfig from './product.config.js';
 
 //productService base on factory pattern
@@ -11,6 +12,14 @@ class ProductService {
     const productClass = ProductService.productRegister[type];
     if (!productClass) throw new BadRequestError(400, 'Not find class');
     return await new productClass(payload).createProduct();
+  }
+
+  static async getAllDraft({ limit = 50, skip = 1 }) {
+    return await productRepo.queryAllDraft({ limit, skip });
+  }
+
+  static async getAllPublished({ limit = 50, skip = 1 }) {
+    return await productRepo.queryAllPublished({ limit, skip });
   }
 }
 
