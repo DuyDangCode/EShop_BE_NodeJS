@@ -29,6 +29,10 @@ class ProductService {
   static async unpublishOneProduct({ productId }) {
     return await productRepo.unpublishOneProduct(productId);
   }
+
+  static async search({ keyword }) {
+    return await productRepo.searchProduct(keyword);
+  }
 }
 
 //add register

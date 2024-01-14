@@ -45,9 +45,21 @@ const publishOnePorduct = async (productId) => {
   return await holderProduct.updateOne(holderProduct);
 };
 
+const searchProduct = async ({ keySearch }) => {
+  const regexSearch = new RegExp(keySearch);
+  return await products.productModel
+    .find(
+      { $text: { $search: regexSearch } },
+      { score: { $meta: 'textScore' } }
+    )
+    .sort({ score: { $meta: 'textScore' } })
+    .lean();
+};
+
 export default {
   queryAllDraft,
   queryAllPublished,
   publishOnePorduct,
   unpublishOneProduct,
+  searchProduct,
 };

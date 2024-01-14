@@ -74,6 +74,10 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+//create index
+productSchema.index({ product_name: 'text', product_description: 'text' });
+
+//auto generate slug
 productSchema.pre('save', function (next) {
   this.product_slug = slugify(this.product_name, { lower: true });
   next();

@@ -39,6 +39,13 @@ class ProductController {
       metadata: await ProductService.unpublishOneProduct(req.body),
     }).send(res);
   }
+
+  static async search(req, res) {
+    return new OK({
+      message: 'Search product',
+      metadata: await ProductService.search(req.body),
+    }).send(res);
+  }
 }
 
 export default ProductController;

@@ -9,6 +9,7 @@ productRouter.get(
   '/published/all',
   asyncHandler(ProductController.getAllPublished)
 );
+productRouter.post('/search', asyncHandler(ProductController.search));
 
 productRouter.use(authentication);
 productRouter.post('', asyncHandler(ProductController.createProduct));
