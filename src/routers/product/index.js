@@ -9,8 +9,17 @@ productRouter.get(
   '/published/all',
   asyncHandler(ProductController.getAllPublished)
 );
+
 productRouter.use(authentication);
 productRouter.post('', asyncHandler(ProductController.createProduct));
 productRouter.get('/draft/all', asyncHandler(ProductController.getAllDraft));
+productRouter.post(
+  '/publish',
+  asyncHandler(ProductController.publishOneProduct)
+);
+productRouter.post(
+  '/unpublish',
+  asyncHandler(ProductController.unPublishOneProduct)
+);
 
 export default productRouter;

@@ -21,6 +21,14 @@ class ProductService {
   static async getAllPublished({ limit = 50, skip = 1 }) {
     return await productRepo.queryAllPublished({ limit, skip });
   }
+
+  static async publishOneProduct({ productId }) {
+    return await productRepo.publishOnePorduct(productId);
+  }
+
+  static async unpublishOneProduct({ productId }) {
+    return await productRepo.unpublishOneProduct(productId);
+  }
 }
 
 //add register

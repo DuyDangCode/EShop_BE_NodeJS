@@ -25,6 +25,20 @@ class ProductController {
       metadata: await ProductService.getAllPublished(req.query),
     }).send(res);
   }
+
+  static async publishOneProduct(req, res) {
+    return new OK({
+      message: 'Publish product successful',
+      metadata: await ProductService.publishOneProduct(req.body),
+    }).send(res);
+  }
+
+  static async unPublishOneProduct(req, res) {
+    return new OK({
+      message: 'Unpublish product successful',
+      metadata: await ProductService.unpublishOneProduct(req.body),
+    }).send(res);
+  }
 }
 
 export default ProductController;
