@@ -30,9 +30,15 @@ const queryAllPublished = async ({
   select,
   sort,
 }) => {
-  console.log(filter);
   const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 };
   return await queryProducts({ filter, limit, skip, select, sort: sortBy });
+};
+
+const getOneProduct = async ({ productId, unselect }) => {
+  return await products.productModel
+    .findById(productId)
+    .select(unselect)
+    .lean();
 };
 
 const unpublishOneProduct = async (productId) => {
@@ -59,15 +65,16 @@ const publishOnePorduct = async (productId) => {
   return await holderProduct.updateOne(holderProduct);
 };
 
-const searchProduct = async ({ keySearch }) => {
+const searchProduct = async (keySearch) => {
   const regexSearch = new RegExp(keySearch);
-  return await products.productModel
+  const results = await products.productModel
     .find(
       { $text: { $search: regexSearch } },
       { score: { $meta: 'textScore' } }
     )
     .sort({ score: { $meta: 'textScore' } })
     .lean();
+  return results;
 };
 
 export default {
@@ -76,4 +83,5 @@ export default {
   publishOnePorduct,
   unpublishOneProduct,
   searchProduct,
+  getOneProduct,
 };

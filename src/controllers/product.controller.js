@@ -43,7 +43,14 @@ class ProductController {
   static async search(req, res) {
     return new OK({
       message: 'Search product',
-      metadata: await ProductService.search(req.body),
+      metadata: await ProductService.search(req.params.keyword),
+    }).send(res);
+  }
+
+  static async getOneProduct(req, res) {
+    return new OK({
+      message: 'Get product successful',
+      metadata: await ProductService.getOneProduct(req.query),
     }).send(res);
   }
 }

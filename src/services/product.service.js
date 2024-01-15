@@ -4,6 +4,7 @@ import {
   getSelectData,
   splitQueryString,
   getSelectDataWithValue,
+  unselectData,
 } from '../utils/index.js';
 import productConfig from './product.config.js';
 
@@ -58,8 +59,15 @@ class ProductService {
     return await productRepo.unpublishOneProduct(productId);
   }
 
-  static async search({ keyword }) {
+  static async search(keyword) {
     return await productRepo.searchProduct(keyword);
+  }
+
+  static async getOneProduct({ productId, unselect }) {
+    return await productRepo.getOneProduct({
+      productId,
+      unselect: unselectData([...splitQueryString(unselect), '__v']),
+    });
   }
 }
 
