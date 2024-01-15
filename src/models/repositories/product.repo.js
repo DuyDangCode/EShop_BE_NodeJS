@@ -2,23 +2,37 @@ import { BadRequestError } from '../../core/error.res.js';
 import products from '../product.model.js';
 import { Types } from 'mongoose';
 
-const queryProducts = async ({ query, limit = 50, skip = 1 }) => {
+const queryProducts = async ({
+  filter,
+  limit = 50,
+  skip = 1,
+  sort = { update: -1 },
+  select,
+}) => {
   return await products.productModel
-    .find(query)
-    .sort({ update: -1 })
+    .find(filter)
+    .sort(sort)
     .skip(skip)
     .limit(limit)
+    .select(select)
     .lean();
 };
 
 const queryAllDraft = async ({ limit = 50, skip = 1 }) => {
-  const query = { isDraft: true };
-  return await queryProducts({ query, limit, skip });
+  const filter = { isDraft: true };
+  return await queryProducts({ filter, limit, skip });
 };
 
-const queryAllPublished = async ({ limit = 50, skip = 1 }) => {
-  const query = { isPublished: true };
-  return await queryProducts({ query, limit, skip });
+const queryAllPublished = async ({
+  filter,
+  limit = 50,
+  skip = 1,
+  select,
+  sort,
+}) => {
+  console.log(filter);
+  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 };
+  return await queryProducts({ filter, limit, skip, select, sort: sortBy });
 };
 
 const unpublishOneProduct = async (productId) => {

@@ -7,7 +7,7 @@ const productRouter = express.Router();
 
 productRouter.get(
   '/published/all',
-  asyncHandler(ProductController.getAllPublished)
+  asyncHandler(ProductController.getAllProduct)
 );
 productRouter.post('/search', asyncHandler(ProductController.search));
 
