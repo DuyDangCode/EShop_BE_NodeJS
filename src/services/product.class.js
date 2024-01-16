@@ -1,4 +1,6 @@
 import products from '../models/product.model.js';
+import productRepo from '../models/repositories/product.repo.js';
+import { updateNestedObjectParser } from '../utils/index.js';
 
 class Product {
   constructor({
@@ -21,6 +23,13 @@ class Product {
   async createProduct(id) {
     return await products.productModel.create({ ...this, _id: id });
   }
+  async updateProduct({ productId, payload }) {
+    return await productRepo.updateProductById({
+      productId,
+      payload,
+      model: products.productModel,
+    });
+  }
 }
 
 export class Laptop extends Product {
@@ -31,6 +40,22 @@ export class Laptop extends Product {
     if (!newLaptop) throw new BadRequestError('Create new laptop error');
     return await super.createProduct(newLaptop._id);
   }
+
+  async updateProduct(productId) {
+    //object parser
+    const payload = updateNestedObjectParser(this);
+
+    //update product in child
+    if (payload.product_attributes) {
+      await productRepo.updateProductById({
+        productId,
+        payload: payload.product_attributes,
+        model: products.laptopModel,
+      });
+    }
+    //update product in parent
+    return await super.updateProduct({ productId, payload });
+  }
 }
 
 export class PC extends Product {
@@ -38,6 +63,21 @@ export class PC extends Product {
     const newPC = await products.pcModel.create(this.product_attributes);
     if (!newPC) throw new BadRequestError('Create new PC error');
     return await super.createProduct(newPC._id);
+  }
+  async updateProduct(productId) {
+    //object parser
+    const payload = updateNestedObjectParser(this);
+
+    //update product in child
+    if (payload.product_attributes) {
+      await productRepo.updateProductById({
+        productId,
+        payload: payload.product_attributes,
+        model: products.pcModel,
+      });
+    }
+    //update product in parent
+    return await super.updateProduct({ productId, payload });
   }
 }
 
@@ -48,5 +88,20 @@ export class Screen extends Product {
     );
     if (!newScreen) throw new BadRequestError('Create new screen error');
     return await super.createProduct(newScreen._id);
+  }
+  async updateProduct(productId) {
+    //object parser
+    const payload = updateNestedObjectParser(this);
+
+    //update product in child
+    if (payload.product_attributes) {
+      await productRepo.updateProductById({
+        productId,
+        payload: payload.product_attributes,
+        model: products.screenModel,
+      });
+    }
+    //update product in parent
+    return await super.updateProduct({ productId, payload });
   }
 }

@@ -24,10 +24,37 @@ const splitQueryString = (queryString = '') => {
   return result;
 };
 
+const removeUndefinedObject = (obj) => {
+  Object.keys(obj).forEach((k) => {
+    if (obj[k] == null) {
+      delete obj[k];
+    }
+  });
+  return obj;
+};
+
+const updateNestedObjectParser = (originalObj) => {
+  const result = {};
+  const obj = removeUndefinedObject(originalObj);
+  Object.keys(obj).map((k) => {
+    if (typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
+      const res = updateNestedObjectParser(obj[k]);
+      Object.keys(res).map((kk) => {
+        result[`${k}.${kk}`] = res[kk];
+      });
+    } else {
+      result[k] = obj[k];
+    }
+  });
+  return result;
+};
+
 export {
   getInfoData,
   getSelectData,
   unselectData,
   splitQueryString,
   getSelectDataWithValue,
+  removeUndefinedObject,
+  updateNestedObjectParser,
 };

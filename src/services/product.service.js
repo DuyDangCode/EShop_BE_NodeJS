@@ -69,6 +69,12 @@ class ProductService {
       unselect: unselectData([...splitQueryString(unselect), '__v']),
     });
   }
+
+  static async updateProduct({ productId, payload, type }) {
+    const productClass = ProductService.productRegister[type];
+    if (!productClass) throw new BadRequestError(400, 'Not find class');
+    return await new productClass(payload).updateProduct(productId);
+  }
 }
 
 //add register

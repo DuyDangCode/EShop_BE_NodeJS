@@ -77,6 +77,15 @@ const searchProduct = async (keySearch) => {
   return results;
 };
 
+const updateProductById = async ({
+  productId,
+  payload,
+  model,
+  isNew = true,
+}) => {
+  return await model.findByIdAndUpdate(productId, payload, { new: isNew });
+};
+
 export default {
   queryAllDraft,
   queryAllPublished,
@@ -84,4 +93,5 @@ export default {
   unpublishOneProduct,
   searchProduct,
   getOneProduct,
+  updateProductById,
 };

@@ -14,6 +14,10 @@ productRouter.get('', asyncHandler(ProductController.getOneProduct));
 
 productRouter.use(authentication);
 productRouter.post('', asyncHandler(ProductController.createProduct));
+productRouter.patch(
+  '/:productId',
+  asyncHandler(ProductController.updateProduct)
+);
 productRouter.get('/draft/all', asyncHandler(ProductController.getAllDraft));
 productRouter.post(
   '/publish',

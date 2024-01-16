@@ -53,6 +53,17 @@ class ProductController {
       metadata: await ProductService.getOneProduct(req.query),
     }).send(res);
   }
+
+  static async updateProduct(req, res) {
+    return new OK({
+      message: 'Update product successful',
+      metadata: await ProductService.updateProduct({
+        productId: req.params.productId,
+        payload: req.body,
+        type: req.body.product_type,
+      }),
+    }).send(res);
+  }
 }
 
 export default ProductController;
