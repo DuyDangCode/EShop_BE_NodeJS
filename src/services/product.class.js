@@ -1,6 +1,8 @@
+import { BadRequestError } from '../core/error.res.js';
 import products from '../models/product.model.js';
 import productRepo from '../models/repositories/product.repo.js';
 import { updateNestedObjectParser } from '../utils/index.js';
+import inventoryRepo from '../models/repositories/inventory.repo.js';
 
 class Product {
   constructor({
@@ -21,7 +23,18 @@ class Product {
     this.product_attributes = product_attributes;
   }
   async createProduct(id) {
-    return await products.productModel.create({ ...this, _id: id });
+    const newProduct = await products.productModel.create({ ...this, _id: id });
+    if (!newProduct) throw new BadRequestError(500, 'Create new product fail');
+    const newInventory = await inventoryRepo.createInventory({
+      inven_productId: newProduct._id,
+      inven_stock: newProduct.product_quantity,
+      inven_location: 'unKnow',
+    });
+    if (!newInventory) {
+      //await products.productModel.findByIdAndRemove(newProduct._id);
+      throw new BadRequestError(500, 'Create new inventory fail');
+    }
+    return newProduct;
   }
   async updateProduct({ productId, payload }) {
     return await productRepo.updateProductById({
