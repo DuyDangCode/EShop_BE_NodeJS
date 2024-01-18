@@ -1,0 +1,32 @@
+import mongoose from 'mongoose';
+
+const DOCUMENT_NAME = 'inventory';
+const COLLECTION_NAME = 'inventories';
+
+const inventorySchema = new mongoose.Schema(
+  {
+    inven_productId: {
+      type: mongoose.Types.ObjectId,
+      require: true,
+      ref: 'product',
+    },
+    inven_stock: {
+      type: Number,
+      require: true,
+    },
+    inven_location: {
+      type: String,
+      default: 'unKnow',
+    },
+    inven_reservation: {
+      type: Array,
+      default: [],
+    },
+  },
+  {
+    timestamps: true,
+    collection: COLLECTION_NAME,
+  }
+);
+
+export default mongoose.model(DOCUMENT_NAME, inventorySchema);
