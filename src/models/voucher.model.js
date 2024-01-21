@@ -26,6 +26,7 @@ const voucherSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
+      index: true,
     },
     voucher_start_day: {
       type: Date,

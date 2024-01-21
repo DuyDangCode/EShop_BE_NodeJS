@@ -36,6 +36,10 @@ const createVoucher = async ({
   });
 };
 
-const updateVoucherByCode = async (code) => {
-  return await voucherModel.findOneAndUpdate({});
+const updateVoucherById = async (_id, update, isNew = true) => {
+  return await voucherModel
+    .findByIdAndUpdate(_id, update, { new: isNew })
+    .lean();
 };
+
+export { findVoucherByCode, createVoucher, updateVoucherById };
