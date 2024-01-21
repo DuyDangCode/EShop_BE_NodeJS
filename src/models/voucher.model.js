@@ -7,15 +7,11 @@ const voucherSchema = new mongoose.Schema(
   {
     voucher_name: {
       type: String,
-      require: true,
+      required: true,
     },
     voucher_description: {
       type: String,
       default: '',
-    },
-    voucher_code: {
-      type: String,
-      require: true,
     },
     voucher_type: {
       type: String,
@@ -24,24 +20,24 @@ const voucherSchema = new mongoose.Schema(
     },
     voucher_value: {
       type: Number,
-      require: true,
+      required: true,
     },
     voucher_code: {
       type: String,
       unique: true,
-      require: true,
+      required: true,
     },
     voucher_start_day: {
       type: Date,
-      require: true,
+      required: true,
     },
     voucher_end_day: {
       type: Date,
-      require: true,
+      required: true,
     },
     voucher_max_uses: {
       type: Number,
-      require: true,
+      required: true,
     },
     voucher_user_count: {
       type: Number,
@@ -53,11 +49,11 @@ const voucherSchema = new mongoose.Schema(
     },
     voucher_max_use_per_user: {
       type: Number,
-      require: true,
+      required: true,
     },
     voucher_min_order_value: {
       type: Number,
-      require: true,
+      required: true,
     },
     voucher_is_activate: {
       type: Boolean,
@@ -66,7 +62,7 @@ const voucherSchema = new mongoose.Schema(
     voucher_applies_to: {
       type: String,
       enum: ['all', 'specific'],
-      require: true,
+      required: true,
     },
     voucher_product_ids: {
       type: Array,

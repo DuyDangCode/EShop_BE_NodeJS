@@ -7,12 +7,12 @@ const inventorySchema = new mongoose.Schema(
   {
     inven_productId: {
       type: mongoose.Types.ObjectId,
-      require: true,
+      required: true,
       ref: 'product',
     },
     inven_stock: {
       type: Number,
-      require: true,
+      required: true,
     },
     inven_location: {
       type: String,

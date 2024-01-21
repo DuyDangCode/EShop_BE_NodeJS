@@ -23,7 +23,9 @@ class Product {
     this.product_attributes = product_attributes;
   }
   async createProduct(id) {
+    // this.product_quantity = null;
     const newProduct = await products.productModel.create({ ...this, _id: id });
+
     if (!newProduct) throw new BadRequestError(500, 'Create new product fail');
     const newInventory = await inventoryRepo.createInventory({
       inven_productId: newProduct._id,

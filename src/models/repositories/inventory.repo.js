@@ -1,4 +1,4 @@
-import inventoryModel from '../inventory.model';
+import inventoryModel from '../inventory.model.js';
 
 const createInventory = async ({
   inven_productId,

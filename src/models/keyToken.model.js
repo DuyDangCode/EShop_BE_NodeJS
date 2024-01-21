@@ -7,12 +7,12 @@ const keyTokenSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.ObjectId,
-      require: true,
+      required: true,
       ref: 'user',
     },
     publicKey: {
       type: String,
-      require: true,
+      required: true,
     },
     refreshTokensUsed: {
       type: Array,
@@ -20,7 +20,7 @@ const keyTokenSchema = new mongoose.Schema(
     },
     refeshToken: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   {

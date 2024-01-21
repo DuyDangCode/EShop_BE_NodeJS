@@ -14,11 +14,11 @@ const productSchema = new mongoose.Schema(
   {
     product_name: {
       type: String,
-      require: true,
+      required: true,
     },
     product_thumb: {
       type: String,
-      require: true,
+      required: true,
     },
     product_description: {
       type: String,
@@ -26,22 +26,22 @@ const productSchema = new mongoose.Schema(
     },
     product_quantity: {
       type: Number,
-      require: true,
+      required: true,
     },
     product_price: {
       type: Number,
-      require: true,
+      required: true,
     },
     product_slug: {
       type: String,
     },
     product_type: {
       type: String,
-      require: true,
+      required: true,
     },
     product_attributes: {
       type: mongoose.Schema.Types.Mixed,
-      require: true,
+      required: true,
     },
     product_rating: {
       type: Number,
