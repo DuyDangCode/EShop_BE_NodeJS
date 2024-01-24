@@ -86,6 +86,15 @@ const updateProductById = async ({
   return await model.findByIdAndUpdate(productId, payload, { new: isNew });
 };
 
+const findProductByName = async (product_name) => {
+  return await products
+    .productModel(
+      { product_name },
+      { _id: 1, product_name: 1, product_quantity: 1, product_price: 1 }
+    )
+    .lean();
+};
+
 export default {
   queryAllDraft,
   queryAllPublished,
@@ -94,4 +103,5 @@ export default {
   searchProduct,
   getOneProduct,
   updateProductById,
+  findProductByName,
 };

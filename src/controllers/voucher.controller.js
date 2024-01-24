@@ -18,6 +18,13 @@ class VoucherController {
       }),
     }).send(res);
   }
+
+  static async applyVoucher(req, res) {
+    return new OK({
+      message: 'Voucher applied',
+      metadata: await VoucherService.applyVoucher(req.body),
+    }).send(res);
+  }
 }
 
 export default VoucherController;
