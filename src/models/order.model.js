@@ -15,12 +15,15 @@ const orderSchema = new mongoose.Schema(
       type: Object,
       required: true,
     },
+    //address
     order_shipping: {
       type: String,
       required: true,
     },
+    //payment status
     order_payment: {
       type: String,
+      enum: ['online', 'upon receipt'],
       required: true,
     },
     order_products: {
