@@ -9,6 +9,12 @@ import { findUserWithId } from '../models/repositories/user.repo.js'
 import { convertStringToObjectId } from '../utils/index.js'
 
 class CartServices {
+  //create cart
+  static async createCart(userId) {
+    const cart = await findCartByUserId(userId)
+    if (cart) return cart
+    return await createCart(userId)
+  }
 
   //get cart
   static async getCart({ userId }) {
@@ -19,11 +25,7 @@ class CartServices {
       throw new BadRequestError(statusCodes.BAD_REQUEST, 'not found user')
 
     //get cart
-    const cart = await findCartByUserId(userId)
-    if (cart) return cart
-    //create new cart if user not have
-    const newCart = await createCart(userId)
-    return newCart
+    return await CartServices.createCart(userId)
   }
 
   //reduce product quantty

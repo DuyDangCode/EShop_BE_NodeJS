@@ -13,6 +13,7 @@ import { createTokenPair, verifyJWT } from '../auth/authUtils.js'
 import { USER_ROLES } from '../constrant/user.constrant.js'
 import UserService from './user.service.js'
 import cartModel from '../models/cart.model.js'
+import CartServices from './cart.service.js'
 
 class AccessService {
   static signup = async ({ username, email, password }) => {
@@ -44,9 +45,7 @@ class AccessService {
     if (!newUser) throw new BadRequestError(500, 'Create user fail.')
 
     //create cart
-    await cartModel.create({
-      userId: newUser._id
-    })
+    CartServices.createCart(newUser._id)
 
     //return tokens when create sucessfull
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
