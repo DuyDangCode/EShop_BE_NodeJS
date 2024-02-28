@@ -8,6 +8,16 @@ class CartController {
       metadata: await CartServices.getCart(req.params)
     }).send(res)
   }
+
+  static async addProduct(req, res) {
+    return new OK({
+      message: 'Add product successful',
+      metadata: await CartServices.addProduct({
+        userId: req.params.userId,
+        product: req.body.product
+      })
+    }).send(res)
+  }
 }
 
 export default CartController
