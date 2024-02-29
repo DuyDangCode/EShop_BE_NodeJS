@@ -55,39 +55,69 @@ class CartServices {
     const userIdObject = convertStringToObjectId(userId)
     const productIdObjet = convertStringToObjectId(product.productId)
 
-    const updateProductExists = await CartServices.updateQuantity(
+    const updateProductExists = await CartServices.updateQuantityV2(
       userId,
       product
     ) //update if produt exist in cart
-    if (
-      !updateProductExists.modifiedCount &&
-      !updateProductExists.upsertedCount
-    ) {
-      return await cartModel
-        .findOneAndUpdate(
-          { userId: userIdObject },
-          {
-            $push: {
-              cart_products: {
-                productId: productIdObjet,
-                productQuantity: product.productQuantity
-              }
-            },
-            $inc: { cart_count: 1 }
-          },
-          { upsert: true, new: true }
-        )
-        .lean()
+    if (updateProductExists) {
+      return updateProductExists
     }
 
-    return cartModel.findOne({ userId: userIdObject }).lean()
+    return await cartModel
+      .findOneAndUpdate(
+        { userId: userIdObject },
+        {
+          $push: {
+            cart_products: {
+              productId: productIdObjet,
+              productQuantity: product.productQuantity
+            }
+          },
+          $inc: { cart_count: 1 }
+        },
+        { upsert: true, new: true }
+      )
+      .lean()
   }
 
   //reduce product quantity
   //increase product quantity
-  static async updateQuantity(userId, product) {
+  static async updateQuantity({ userId, productId, newQuantity, oldQuantity }) {
+    const productQuantity = newQuantity - oldQuantity
+    //check product
+    const validProducts = await productRepo.checkProduct({
+      productId,
+      productQuantity
+    })
+
+    if (!validProducts)
+      throw new BadRequestError(statusCodes.BAD_REQUEST, 'Cant find product')
+
+    const updateProductExists = await cartModel.updateOne(
+      {
+        userId: convertStringToObjectId(userId),
+        'cart_products.productId': convertStringToObjectId(productId),
+        'cart_products.productQuantity': { $ne: newQuantity },
+        'cart_products.productQuantity': { $eq: oldQuantity }
+      },
+      {
+        $inc: {
+          'cart_products.$.productQuantity': productQuantity
+        }
+      }
+    )
+
+    if (updateProductExists.modifiedCount || updateProductExists.upsertedCount)
+      return cartModel
+        .findOne({ userId: convertStringToObjectId(userId) })
+        .lean()
+
+    return null
+  }
+
+  static async updateQuantityV2(userId, product) {
     const { productId, productQuantity = 1 } = product
-    return await cartModel.updateOne(
+    const updateProductExists = await cartModel.updateOne(
       {
         userId: convertStringToObjectId(userId),
         'cart_products.productId': convertStringToObjectId(productId)
@@ -98,6 +128,13 @@ class CartServices {
         }
       }
     )
+
+    if (updateProductExists.modifiedCount || updateProductExists.upsertedCount)
+      return cartModel
+        .findOne({ userId: convertStringToObjectId(userId) })
+        .lean()
+
+    return null
   }
 
   //remove one product

@@ -101,10 +101,7 @@ const checkProduct = async (product) => {
     isPublished: true,
     isDraft: false
   })
-  if (!existingProduct) {
-    return false
-  }
-  return true
+  return existingProduct
 }
 
 export default {
