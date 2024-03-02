@@ -19,7 +19,7 @@ class CartServices {
   }
 
   //get cart
-  static async getCart({ userId }) {
+  static async getCart(userId) {
     //check user
     const userExist = await findUserWithId(userId)
     if (!userExist)
@@ -138,8 +138,48 @@ class CartServices {
   }
 
   //remove one product
+  static async removeProduct(userId, productId) {
+    console.log(productId)
+    const productIdObject = convertStringToObjectId(productId)
+    return await cartModel
+      .findOneAndUpdate(
+        {
+          userId: convertStringToObjectId(userId),
+          'cart_products.productId': convertStringToObjectId(productId)
+        },
+        {
+          $pull: {
+            cart_products: {
+              productId: productIdObject
+            }
+          },
+          $inc: {
+            cart_count: -1
+          }
+        },
+        {
+          new: true
+        }
+      )
+      .lean()
+  }
 
   //remove all products
+  static async removeCart(userId) {
+    return await cartModel
+      .findOneAndUpdate(
+        { userId: convertStringToObjectId(userId) },
+        {
+          cart_products: [],
+          cart_count: 0
+        },
+        {
+          upsert: true,
+          new: true
+        }
+      )
+      .lean()
+  }
 }
 
 export default CartServices

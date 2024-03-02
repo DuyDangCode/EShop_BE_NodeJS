@@ -1,62 +1,66 @@
-import { HEADERS } from '../constrant/req.constrant.js';
-import { BadRequestError } from '../core/error.res.js';
-import { asyncHandler } from '../helpers/index.helper.js';
-import { findById } from '../services/apiKey.service.js';
-import KeyService from '../services/key.service.js';
-import JWT from 'jsonwebtoken';
-import { verifyJWT } from './authUtils.js';
+import { HEADERS } from '../constrant/req.constrant.js'
+import { BadRequestError } from '../core/error.res.js'
+import { asyncHandler } from '../helpers/index.helper.js'
+import { findById } from '../services/apiKey.service.js'
+import KeyService from '../services/key.service.js'
+import JWT from 'jsonwebtoken'
+import { verifyJWT } from './authUtils.js'
 
 const checkApiKey = async (req, res, next) => {
-  const key = req.headers[HEADERS.API_KEY]?.toString();
-  if (!key) next(new BadRequestError(400, 'Not found key'));
-  const objKey = await findById(key);
-  if (!objKey) next(new BadRequestError());
-  req.objKey = objKey;
-  next();
-};
+  const key = req.headers[HEADERS.API_KEY]?.toString()
+  if (!key) next(new BadRequestError(400, 'Not found key'))
+  const objKey = await findById(key)
+  if (!objKey) next(new BadRequestError())
+  req.objKey = objKey
+  next()
+}
 
 const checkPermission = (permission) => {
   return (req, res, next) => {
     if (!req.objKey.permissions)
-      next(new BadRequestError(403, 'Permission denied'));
+      next(new BadRequestError(403, 'Permission denied'))
 
-    const validPermission = req.objKey.permissions.includes(permission);
-    if (!validPermission) next(new BadRequestError(403, 'Permission denied'));
+    const validPermission = req.objKey.permissions.includes(permission)
+    if (!validPermission) next(new BadRequestError(403, 'Permission denied'))
 
-    next();
-  };
-};
+    next()
+  }
+}
 
 const handleToken = (userId, req, token, keyStore, next) => {
   try {
-    const decodeToken = verifyJWT(token, keyStore.publicKey);
+    const decodeToken = verifyJWT(token, keyStore.publicKey)
     if (userId !== decodeToken.userId)
-      throw new BadRequestError(400, 'Invalid token');
-    req.token = token;
-    req.keyStore = keyStore;
-    return next();
+      throw new BadRequestError(400, 'Invalid token')
+
+    //access token
+    req.token = token
+
+    //key document
+    req.keyStore = keyStore
+
+    return next()
   } catch (error) {
-    console.error(error);
-    throw new BadRequestError(400, 'Invalid token');
+    throw new BadRequestError(400, 'Invalid token')
   }
-};
+}
 
 const authentication = asyncHandler(async (req, res, next) => {
   // check userId missing
-  const userId = req.headers[HEADERS.CLIENT]?.toString();
-  if (!userId) throw new BadRequestError(400, 'Not find client id');
+  const userId = req.headers[HEADERS.CLIENT]?.toString()
+  if (!userId) throw new BadRequestError(400, 'Not find client id')
 
   // check token missing
   const token = req.headers[HEADERS.REFRESH_TOKEN]
     ? req.headers[HEADERS.REFRESH_TOKEN].toString()
-    : req.headers[HEADERS.AUTHORIZATION]?.toString();
-  if (!token) throw new BadRequestError(400, 'Not find token');
+    : req.headers[HEADERS.AUTHORIZATION]?.toString()
+  if (!token) throw new BadRequestError(400, 'Not find token')
 
   // get keys in dbs
-  const keysFormDb = await KeyService.findByUserId(userId);
-  if (!keysFormDb) throw new BadRequestError(400, 'User not registed');
+  const keysFormDb = await KeyService.findByUserId(userId)
+  if (!keysFormDb) throw new BadRequestError(400, 'User not registed')
 
-  handleToken(userId, req, token, keysFormDb, next);
-});
+  handleToken(userId, req, token, keysFormDb, next)
+})
 
-export { checkApiKey, checkPermission, authentication };
+export { checkApiKey, checkPermission, authentication }

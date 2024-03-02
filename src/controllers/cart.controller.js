@@ -7,7 +7,7 @@ class CartController {
   static async getCart(req, res) {
     return new OK({
       message: 'Get cart successful',
-      metadata: await CartServices.getCart(req.params)
+      metadata: await CartServices.getCart(req.keyStore.userId)
     }).send(res)
   }
 
@@ -15,7 +15,7 @@ class CartController {
     return new OK({
       message: 'Add product successful',
       metadata: await CartServices.addProduct({
-        userId: req.params.userId,
+        userId: req.keyStore.userId,
         product: req.body.product
       })
     }).send(res)
@@ -31,7 +31,7 @@ class CartController {
   static async updateProduct(req, res) {
     console.log(req.body)
     const result = await CartServices.updateQuantity({
-      userId: req.params.userId,
+      userId: req.keyStore.userId,
       ...req.body.product
     })
     if (!result)
@@ -39,6 +39,23 @@ class CartController {
     return new OK({
       message: 'Update product successful',
       metadata: result
+    }).send(res)
+  }
+
+  static async removeCart(req, res) {
+    return new OK({
+      message: 'Remove cart successful',
+      metadata: await CartServices.removeCart(req.keyStore.userId)
+    }).send(res)
+  }
+
+  static async removeProduct(req, res) {
+    return new OK({
+      message: 'Remove product in cart successful',
+      metadata: await CartServices.removeProduct(
+        req.keyStore.userId,
+        req.params.productId
+      )
     }).send(res)
   }
 }
