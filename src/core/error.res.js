@@ -1,16 +1,17 @@
-import { statusCodes } from './httpStatusCode/statusCodes.js';
-import { reasonPharses } from './httpStatusCode/reasonPhrases.js';
-import { message } from './httpStatusCode/message.js';
+import { statusCodes } from './httpStatusCode/statusCodes.js'
+import { reasonPharses } from './httpStatusCode/reasonPhrases.js'
+import { message } from './httpStatusCode/message.js'
 class ErrorRes extends Error {
   constructor(status, message) {
-    super(message);
-    this.status = status;
+    super(message)
+    this.status = status
+    // Error.captureStackTrace(this)
   }
 }
 
 class ConfigRequestError extends ErrorRes {
   constructor(status = statusCodes.CONFLICT, message = reasonPharses.CONFLICT) {
-    super(status, message);
+    super(status, message)
   }
 }
 
@@ -19,7 +20,7 @@ class BadRequestError extends ErrorRes {
     status = statusCodes.BAD_REQUEST,
     message = statusCodes.BAD_REQUEST
   ) {
-    super(status, message);
+    super(status, message)
   }
 }
 
@@ -28,7 +29,7 @@ class ForbiddenError extends ErrorRes {
     status = statusCodes.FORBIDDEN,
     message = reasonPharses.FORBIDDEN
   ) {
-    super(status, message);
+    super(status, message)
   }
 }
 
@@ -37,16 +38,16 @@ class AuthFailError extends ErrorRes {
     status = statusCodes.BAD_REQUEST,
     message = reasonPharses.BAD_REQUEST
   ) {
-    super(status, message);
+    super(status, message)
   }
 }
 
 class VoucherInvalidError extends ErrorRes {
   constructor({
     status = statusCodes.BAD_REQUEST,
-    message = message.VoucherInvalid,
+    message = message.VoucherInvalid
   }) {
-    super(status, message);
+    super(status, message)
   }
 }
 
@@ -55,5 +56,5 @@ export {
   BadRequestError,
   ForbiddenError,
   AuthFailError,
-  VoucherInvalidError,
-};
+  VoucherInvalidError
+}
