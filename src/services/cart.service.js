@@ -139,9 +139,8 @@ class CartServices {
 
   //remove one product
   static async removeProduct(userId, productId) {
-    console.log(productId)
     const productIdObject = convertStringToObjectId(productId)
-    return await cartModel
+    return await cartModel  
       .findOneAndUpdate(
         {
           userId: convertStringToObjectId(userId),
