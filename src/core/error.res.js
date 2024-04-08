@@ -43,10 +43,19 @@ class AuthFailError extends ErrorRes {
 }
 
 class VoucherInvalidError extends ErrorRes {
-  constructor({
+  constructor(
     status = statusCodes.BAD_REQUEST,
     message = message.VoucherInvalid
-  }) {
+  ) {
+    super(status, message)
+  }
+}
+
+class RedisError extends ErrorRes {
+  constructor(
+    status = statusCodes.INTERNAL_SERVER_ERROR,
+    message = 'redis has some error'
+  ) {
     super(status, message)
   }
 }
@@ -56,5 +65,6 @@ export {
   BadRequestError,
   ForbiddenError,
   AuthFailError,
-  VoucherInvalidError
+  VoucherInvalidError,
+  RedisError
 }

@@ -21,9 +21,19 @@ class AccessService {
       throw new BadRequestError(400, 'Not find username, email or password')
 
     //check user exist
-    const holderUserWithEmail = await userModel.findOne({ email: email }).lean()
+    const holderUserWithEmail = await userModel
+      .findOne({
+        email: {
+          $regex: new RegExp(email, 'i')
+        }
+      })
+      .lean()
     const holderUserWithUsername = await userModel
-      .findOne({ username: username })
+      .findOne({
+        username: {
+          $regex: new RegExp(username, 'i')
+        }
+      })
       .lean()
     if (holderUserWithEmail || holderUserWithUsername) {
       throw new BadRequestError(400, 'User already exist')
@@ -39,7 +49,7 @@ class AccessService {
       username: username,
       email: email,
       password: passwordHash,
-      roles: [USER_ROLES.admin]
+      roles: [USER_ROLES.user]
     })
 
     if (!newUser) throw new BadRequestError(500, 'Create user fail.')
@@ -85,10 +95,23 @@ class AccessService {
     if (!username || !password)
       throw new BadRequestError(400, 'Not find username or password')
 
-    const user = await userModel
-      .findOne({ username: username })
-      .select({ username: 1, password: 1, roles: 1 })
-      .lean()
+    const user =
+      (await userModel
+        .findOne({
+          username: {
+            $regex: new RegExp(username, 'i')
+          }
+        })
+        .select({ username: 1, password: 1, roles: 1 })
+        .lean()) ||
+      (await userModel
+        .findOne({
+          email: {
+            $regex: new RegExp(username, 'i')
+          }
+        })
+        .select({ username: 1, password: 1, roles: 1 })
+        .lean())
 
     //check user exist
     if (!user) throw new BadRequestError(400, 'User not found')

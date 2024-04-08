@@ -14,14 +14,15 @@ import { asyncHandler } from './helpers/index.helper.js'
 import cors from 'cors'
 
 dotenv.config()
-Database.getInstance()
+const database = Database.getInstance()
+database.connect('redis')
 
 const app = express()
 
 // middleware
 
-// countConnet();
-// checkOverload();
+// countConnet()
+// checkOverload()
 app.use(cors())
 app.use(morgan('dev'))
 app.use(compression())
