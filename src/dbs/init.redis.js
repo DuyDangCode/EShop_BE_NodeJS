@@ -1,5 +1,5 @@
 import redis from 'redis'
-import redisConstrant from '../constrant/redis.constrant.js'
+import redisConstrant from '../configs/redis.config.js'
 import { RedisError } from '../core/error.res.js'
 
 let timeout
