@@ -2,6 +2,8 @@ import app from './src/app.js'
 import chalk from 'chalk'
 import { DEV } from './src/configs/config.env.js'
 import { terminate } from './src/helpers/index.helper.js'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const PORT = DEV.app.port || 8080
 

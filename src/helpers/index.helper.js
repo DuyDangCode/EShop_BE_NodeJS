@@ -21,7 +21,7 @@ const terminate = (
     if (err && err instanceof Error) {
       console.log(err.message, err.stack)
     }
-    // server.close(exit)
+    server.close(exit)
     setTimeout(exit, options.timeout).unref()
   }
 }

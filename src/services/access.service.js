@@ -3,7 +3,8 @@ import {
   AuthFailError,
   BadRequestError,
   ConfigRequestError,
-  ForbiddenError
+  ForbiddenError,
+  InternalServerError
 } from '../core/error.res.js'
 import userModel from '../models/user.model.js'
 import bcrypt from 'bcrypt'
@@ -18,7 +19,7 @@ import CartServices from './cart.service.js'
 class AccessService {
   static signup = async ({ username, email, password }) => {
     if (!username || !email || !password)
-      throw new BadRequestError(400, 'Not find username, email or password')
+      throw new BadRequestError('Not find username, email or password')
 
     //check user exist
     const holderUserWithEmail = await userModel
@@ -36,7 +37,7 @@ class AccessService {
       })
       .lean()
     if (holderUserWithEmail || holderUserWithUsername) {
-      throw new BadRequestError(400, 'User already exist')
+      throw new BadRequestError('User already exist')
     }
 
     // hash password
@@ -52,7 +53,7 @@ class AccessService {
       roles: [USER_ROLES.user]
     })
 
-    if (!newUser) throw new BadRequestError(500, 'Create user fail.')
+    if (!newUser) throw new BadRequestError('Create user fail.')
 
     //create cart
     CartServices.createCart(newUser._id)
@@ -69,12 +70,12 @@ class AccessService {
         format: 'pem'
       }
     })
-    if (!privateKey || !publicKey) throw BadRequestError(500, 'Create key fail')
+    if (!privateKey || !publicKey) throw BadRequestError('Create key fail')
 
     //create access token and refresh token
     const payload = { userId: newUser._id }
     const tokens = createTokenPair(payload, privateKey)
-    if (!tokens) throw new BadRequestError(500, 'Create tokens fail')
+    if (!tokens) throw new BadRequestError('Create tokens fail')
 
     //save token
     await KeyService.createKeyToken({
@@ -93,7 +94,7 @@ class AccessService {
 
   static signin = async ({ username, password }) => {
     if (!username || !password)
-      throw new BadRequestError(400, 'Not find username or password')
+      throw new BadRequestError('Not find username or password')
 
     const user =
       (await userModel
@@ -114,7 +115,7 @@ class AccessService {
         .lean())
 
     //check user exist
-    if (!user) throw new BadRequestError(400, 'User not found')
+    if (!user) throw new BadRequestError('User not found')
 
     const {
       _id: userId,
@@ -125,7 +126,7 @@ class AccessService {
     const isCorrectPassword = bcrypt.compareSync(password, savedPassword)
 
     //check password
-    if (!isCorrectPassword) throw new BadRequestError(400, 'Password was wrong')
+    if (!isCorrectPassword) throw new BadRequestError('Password was wrong')
 
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
       modulusLength: 2048,
@@ -145,7 +146,7 @@ class AccessService {
 
     const { accessToken, refreshToken } = createTokenPair(payload, privateKey)
     if (!accessToken || !refreshToken)
-      throw BadRequestError(500, 'Create tokens fail')
+      throw InternalServerError('Create tokens fail')
 
     //save tokens
     await KeyService.createKeyToken({
@@ -174,12 +175,12 @@ class AccessService {
     if (foundToken) {
       const { userId } = verifyJWT(refreshToken, foundKey.publicKey)
       await KeyService.removeById(foundToken._id)
-      throw new ForbiddenError(403, 'Some thing wrong')
+      throw new ForbiddenError('Some thing wrong')
     }
 
     //get tokens in db
     const holderToken = await KeyService.findByRefreshToken(refreshToken)
-    if (!holderToken) throw new AuthFailError(403, 'Token not exist')
+    if (!holderToken) throw new AuthFailError('Token not exist')
 
     //verify refresh token
     const verifiedToken = verifyJWT(refreshToken, holderToken.publicKey)
@@ -187,11 +188,11 @@ class AccessService {
     //compare userId which is verified form refresh token with userId in db
 
     if (verifiedToken.userId != holderToken.userId)
-      throw new AuthFailError(403, 'Can verify token')
+      throw new AuthFailError('Can verify token')
 
     //check userId exist in db
     const holderUser = await UserService.findById(verifiedToken.userId)
-    if (!holderUser) throw new AuthFailError(403, 'Not found user')
+    if (!holderUser) throw new AuthFailError('Not found user')
 
     //create tokens
     const payload = { userId: verifiedToken.userId }

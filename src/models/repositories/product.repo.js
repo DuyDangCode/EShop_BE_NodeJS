@@ -104,7 +104,45 @@ const checkProduct = async (product) => {
   return existingProduct
 }
 
+const findProductByIdPublish = async (product) => {
+  return await products.productModel
+    .findOne({
+      _id: convertStringToObjectId(product.productId),
+      isPublished: true,
+      isDraft: false
+    })
+    .lean()
+}
+
+const findProductByIdPricePublish = async (product) => {
+  return await products.productModel
+    .findOne({
+      _id: convertStringToObjectId(product.productId),
+      product_price: product.product_price,
+      isPublished: true,
+      isDraft: false
+    })
+    .lean()
+}
+
+const checkProductIds = async (products) => {
+  return await Promise.all(
+    products.map(
+      (product) =>
+        new Promise(async (resolve, reject) => {
+          const foundProduct = await findProductByIdPublish(product)
+          foundProduct ? resolve(foundProduct) : reject()
+        })
+    )
+  )
+    .then((res) => res)
+    .catch(() => false)
+}
+
 export default {
+  findProductByIdPricePublish,
+  findProductByIdPublish,
+  checkProductIds,
   queryAllDraft,
   queryAllPublished,
   publishOnePorduct,

@@ -5,6 +5,7 @@ import productRepo from '../models/repositories/product.repo.js'
 import {
   createVoucher,
   findVoucherByCode,
+  findVoucherByIdPublish,
   updateVoucherById
 } from '../models/repositories/voucher.repo.js'
 
@@ -16,13 +17,11 @@ class VoucherService {
 
     if (endDay < currentDay)
       throw new VoucherInvalidError(
-        statusCodes.BAD_REQUEST,
         'The end date cannot be less than the current date'
       )
 
     if (startDay > endDay)
       throw new VoucherInvalidError(
-        statusCodes.BAD_REQUEST,
         'The start date cannot be greater than the end date'
       )
   }
@@ -63,11 +62,7 @@ class VoucherService {
     VoucherService.validateDate({ voucher_start_day, voucher_end_day })
 
     const foundVoucher = await findVoucherByCode(voucher_code)
-    if (foundVoucher)
-      throw new VoucherInvalidError(
-        statusCodes.BadRequestError,
-        'Voucher is exists'
-      )
+    if (foundVoucher) throw new VoucherInvalidError('Voucher is exists')
 
     return await createVoucher({
       voucher_name,
@@ -120,28 +115,36 @@ class VoucherService {
   }
 
   /**
-   * @argument voucher_code
-   * @argument products = {
-   *  product_name,
+   * @argument voucherId
+   * @argument product = {
+   *  productId,
    *  product_quantity,
    *  product_price,
    * }
    * @argument userId
    * @returns totalCost
    */
-  static async applyVoucher({ voucher_code, products = [], userId }) {
-    if (products.length === 0)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'Products is empty')
+  static async applyVoucher({
+    voucherId,
+    productId,
+    product_quantity,
+    product_price,
+    userId
+  }) {
+    if (
+      !voucherId ||
+      !product_price ||
+      !product_quantity ||
+      !productId ||
+      !userId
+    )
+      throw new BadRequestError('Something wrong')
 
     //validata voucher
-    const foundVoucher = await findVoucherByCode(voucher_code)
+    const foundVoucher = await findVoucherByIdPublish(voucherId)
 
     //check voucher exists
-    if (!foundVoucher)
-      throw new VoucherInvalidError(
-        statusCodes.BAD_REQUEST,
-        'Voucher not exists'
-      )
+    if (!foundVoucher) throw new VoucherInvalidError('Voucher not exists')
 
     const {
       _id,
@@ -169,50 +172,33 @@ class VoucherService {
       VoucherService.countUserUsed({ voucher_users_used, userId }) ===
       voucher_max_use_per_user
     )
-      throw new VoucherInvalidError(
-        statusCodes.BAD_REQUEST,
-        'The number of uses is 0'
-      )
+      throw new VoucherInvalidError('The number of uses is 0')
 
     //check product
     if (voucher_applies_to === 'specific') {
       products.map(async (product) => {
-        const foundProduct = await productRepo.findProductByName(
-          product.product_name
-        )
-        if (!foundProduct)
-          throw new BadRequestError(
-            statusCodes.BAD_REQUEST,
-            'Cant find product'
-          )
+        const foundProduct = await productRepo.findProductByIdPublish(productId)
+        if (!foundProduct) throw new BadRequestError('Cant find product')
 
-        if (voucher_product_ids.includes(foundProduct._id))
-          throw new BadRequestError(statusCodes.BAD_REQUEST, 'Invalid product')
+        if (!voucher_product_ids.includes(foundProduct._id))
+          throw new BadRequestError('Invalid product')
 
         if (foundProduct.product_quantity < product.product_quantity)
-          throw new BadRequestError(statusCodes.BAD_REQUEST, 'Not enough goods')
+          throw new BadRequestError('Not enough goods')
       })
     }
 
     //check order value
-    const orderValue = VoucherService.calTotalOrderValue(products)
+    const orderValue = VoucherService.calTotalOrderValue([
+      {
+        product_price,
+        product_quantity
+      }
+    ])
     if (orderValue < voucher_min_order_value)
       throw new VoucherInvalidError(
-        statusCodes.BAD_REQUEST,
         'The order does not meet the requirements to use the voucher'
       )
-
-    const update = {
-      $push: {
-        voucher_users_used: userId
-      },
-      $inc: {
-        voucher_user_count: 1
-      }
-    }
-    const result = await updateVoucherById(_id, update)
-    if (!result)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'something went wrong')
 
     if (voucher_type === 'fixed_amount') {
       return orderValue - voucher_value
