@@ -3,6 +3,8 @@ import products from '../models/product.model.js'
 import productRepo from '../models/repositories/product.repo.js'
 import { updateNestedObjectParser } from '../utils/index.js'
 import inventoryRepo from '../models/repositories/inventory.repo.js'
+import { cloudinaryUploader } from '../configs/cloudinary.config.js'
+import { decodeBase64ForMulter } from '../configs/multer.config.js'
 
 class Product {
   constructor({
@@ -12,20 +14,30 @@ class Product {
     product_quantity,
     product_price,
     product_type,
-    product_attributes
+    product_attributes,
+    originalname,
+    buffer
   }) {
     this.product_name = product_name
-    this.product_thumb = product_thumb
+    this.product_thumb = ''
     this.product_description = product_description
     this.product_quantity = product_quantity
     this.product_price = product_price
     this.product_type = product_type
     this.product_attributes = product_attributes
+    this.originalnameImage = originalname
+    this.bufferImage = buffer
   }
   async createProduct(id) {
     // this.product_quantity = null;
-    const newProduct = await products.productModel.create({ ...this, _id: id })
+    const file = decodeBase64ForMulter(
+      this.originalnameImage,
+      this.bufferImage
+    ).content
+    const uploadImageResult = await cloudinaryUploader.upload(file)
+    this.product_thumb = uploadImageResult.url
 
+    const newProduct = await products.productModel.create({ ...this, _id: id })
     if (!newProduct) throw new BadRequestError('Create new product fail')
     const newInventory = await inventoryRepo.createInventory({
       inven_productId: newProduct._id,
@@ -36,6 +48,7 @@ class Product {
       //await products.productModel.findByIdAndRemove(newProduct._id);
       throw new BadRequestError('Create new inventory fail')
     }
+
     return newProduct
   }
   async updateProduct({ productId, payload }) {
