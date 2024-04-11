@@ -1,9 +1,7 @@
-import chalk from 'chalk'
 import express from 'express'
 import './dbs/init.db.js'
 import { checkOverload, countConnet } from './helpers/check.connect.js'
 import routers from './routers/index.js'
-import * as dotenv from 'dotenv'
 import Database from './dbs/init.db.js'
 import compression from 'compression'
 import helmet from 'helmet'
@@ -13,7 +11,6 @@ import { PERMISSIONS } from './constrant/apiKey.constrant.js'
 import { asyncHandler } from './helpers/index.helper.js'
 import cors from 'cors'
 
-dotenv.config()
 const database = Database.getInstance()
 database.connect('redis')
 

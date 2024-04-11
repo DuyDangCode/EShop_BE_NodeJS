@@ -8,7 +8,7 @@ import { verifyJWT } from './authUtils.js'
 
 const checkApiKey = async (req, res, next) => {
   const key = req.headers[HEADERS.API_KEY]?.toString()
-  if (!key) next(new BadRequestError(400, 'Not found key'))
+  if (!key) next(new BadRequestError('Not found key'))
   const objKey = await findById(key)
   if (!objKey) next(new BadRequestError())
   req.objKey = objKey
@@ -17,11 +17,10 @@ const checkApiKey = async (req, res, next) => {
 
 const checkPermission = (permission) => {
   return (req, res, next) => {
-    if (!req.objKey.permissions)
-      next(new BadRequestError(403, 'Permission denied'))
+    if (!req.objKey.permissions) next(new BadRequestError('Permission denied'))
 
     const validPermission = req.objKey.permissions.includes(permission)
-    if (!validPermission) next(new BadRequestError(403, 'Permission denied'))
+    if (!validPermission) next(new BadRequestError('Permission denied'))
 
     next()
   }
@@ -31,7 +30,7 @@ const handleToken = (userId, req, token, keyStore, next) => {
   try {
     const decodeToken = verifyJWT(token, keyStore.publicKey)
     if (userId !== decodeToken.userId)
-      throw new BadRequestError(400, 'Invalid token')
+      throw new BadRequestError('Invalid token')
 
     //access token
     req.token = token
@@ -41,24 +40,24 @@ const handleToken = (userId, req, token, keyStore, next) => {
 
     return next()
   } catch (error) {
-    throw new BadRequestError(400, 'Invalid token')
+    throw new BadRequestError('Invalid token')
   }
 }
 
 const authentication = asyncHandler(async (req, res, next) => {
   // check userId missing
   const userId = req.headers[HEADERS.CLIENT]?.toString()
-  if (!userId) throw new BadRequestError(400, 'Not find client id')
+  if (!userId) throw new BadRequestError('Not find client id')
 
   // check token missing
   const token = req.headers[HEADERS.REFRESH_TOKEN]
     ? req.headers[HEADERS.REFRESH_TOKEN].toString()
     : req.headers[HEADERS.AUTHORIZATION]?.toString()
-  if (!token) throw new BadRequestError(400, 'Not find token')
+  if (!token) throw new BadRequestError('Not find token')
 
   // get keys in dbs
   const keysFormDb = await KeyService.findByUserId(userId)
-  if (!keysFormDb) throw new BadRequestError(400, 'User not registed')
+  if (!keysFormDb) throw new BadRequestError('User not registed')
 
   handleToken(userId, req, token, keysFormDb, next)
 })

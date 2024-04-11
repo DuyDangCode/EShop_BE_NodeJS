@@ -22,8 +22,7 @@ class CartServices {
   static async getCart(userId) {
     //check user
     const userExist = await findUserWithId(userId)
-    if (!userExist)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'not found user')
+    if (!userExist) throw new BadRequestError('not found user')
 
     //get cart
     return await CartServices.createCart(userId)
@@ -47,8 +46,7 @@ class CartServices {
   static async addProduct({ userId, product }) {
     //check product
     const validProducts = await productRepo.checkProduct(product)
-    if (!validProducts)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'Cant find product')
+    if (!validProducts) throw new BadRequestError('Cant find product')
     //add product
 
     let cart = await findCartByUserId(userId)
@@ -90,8 +88,7 @@ class CartServices {
       productQuantity
     })
 
-    if (!validProducts)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'Cant find product')
+    if (!validProducts) throw new BadRequestError('Cant find product')
 
     const updateProductExists = await cartModel.updateOne(
       {
@@ -140,7 +137,7 @@ class CartServices {
   //remove one product
   static async removeProduct(userId, productId) {
     const productIdObject = convertStringToObjectId(productId)
-    return await cartModel  
+    return await cartModel
       .findOneAndUpdate(
         {
           userId: convertStringToObjectId(userId),

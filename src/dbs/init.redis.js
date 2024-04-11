@@ -19,7 +19,7 @@ const handleEventConnect = ({ instanceRedis }) => {
 
   instanceRedis.on(redisConstrant.status.RECONNECT, () => {
     console.log('Redis reconnect')
-    clearTimeout(timeout)
+    // clearTimeout(timeout)
   })
 
   instanceRedis.on(redisConstrant.status.ERROR, () => {
@@ -34,25 +34,41 @@ const handleEventConnect = ({ instanceRedis }) => {
 }
 
 const initRedis = async () => {
+  client.instanceRedis = redis.createClient({
+    username: redisConstrant.USERNAME,
+    password: redisConstrant.PASSWORD,
+    socket: {
+      host: redisConstrant.HOST,
+      port: redisConstrant.PORT
+    }
+  })
+
   // client.instanceRedis = redis.createClient({
-  //   username: redisConstrant.USERNAME,
-  //   password: redisConstrant.PASSWORD,
+  //   password: 'iFbgv5ABoXhTlzkIDkrntI6BoIDrysuh',
   //   socket: {
-  //     host: redisConstrant.HOST,
-  //     port: redisConstrant.PORT
+  //     host: 'redis-13662.c1.ap-southeast-1-1.ec2.cloud.redislabs.com',
+  //     port: 13662
   //   }
   // })
-  client.instanceRedis = redis.createClient()
+  // client.instanceRedis = redis.createClient()
   client.instanceRedis.connect()
   handleEventConnect(client)
 }
 
-const getRedis = async () => client
+const getRedis = () => client
 
 const closeRedis = async () => {
   client.forEach(async (item) => {
     await item.quit()
     handleEventConnect(item)
+  })
+}
+
+const setnx = (instance) => {
+  return new Promise(() => {
+    const client = redis.createClient()
+
+    instance.GETEX()
   })
 }
 

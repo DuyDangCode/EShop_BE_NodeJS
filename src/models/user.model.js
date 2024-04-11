@@ -1,7 +1,7 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose'
 
-const COLLECTION_NAME = 'users';
-const DOCUMENT_NAME = 'user';
+const COLLECTION_NAME = 'users'
+const DOCUMENT_NAME = 'user'
 
 const userSchema = new mongoose.Schema(
   {
@@ -9,34 +9,42 @@ const userSchema = new mongoose.Schema(
       type: String,
       maxLength: 255,
       required: true,
-      unique: true,
+      unique: true
     },
     username: {
       type: String,
       maxLength: 50,
-      unique: true,
+      unique: true
     },
     password: {
-      type: String,
+      type: String
     },
     status: {
       type: String,
       enum: ['activate', 'inactivate'],
-      default: 'activate',
+      default: 'activate'
     },
     verify: {
       type: Schema.Types.Boolean,
-      default: false,
+      default: false
     },
     roles: {
       type: Array,
-      default: [],
+      default: []
     },
+    address: {
+      type: String,
+      default: ''
+    },
+    phone: {
+      type: String,
+      default: ''
+    }
   },
   {
     timestamps: true,
-    collection: COLLECTION_NAME,
+    collection: COLLECTION_NAME
   }
-);
+)
 
-export default mongoose.model(DOCUMENT_NAME, userSchema);
+export default mongoose.model(DOCUMENT_NAME, userSchema)
