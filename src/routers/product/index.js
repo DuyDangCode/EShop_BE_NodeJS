@@ -2,6 +2,7 @@ import express from 'express'
 import { authentication } from '../../auth/checkAuth.js'
 import ProductController from '../../controllers/product.controller.js'
 import { asyncHandler } from '../../helpers/index.helper.js'
+import { multerUploadSingleImage } from '../../configs/multer.config.js'
 
 const productRouter = express.Router()
 
@@ -13,7 +14,11 @@ productRouter.get('/search/:keyword', asyncHandler(ProductController.search))
 productRouter.get('', asyncHandler(ProductController.getOneProduct))
 
 productRouter.use(authentication)
-productRouter.post('', asyncHandler(ProductController.createProduct))
+productRouter.post(
+  '',
+  multerUploadSingleImage,
+  asyncHandler(ProductController.createProduct)
+)
 productRouter.patch(
   '/:productId',
   asyncHandler(ProductController.updateProduct)
