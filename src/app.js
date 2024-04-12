@@ -31,7 +31,7 @@ app.use(
   })
 )
 app.use(checkApiKey)
-app.use(checkPermission(PERMISSIONS.all))
+// app.use(checkPermission(PERMISSIONS.all))
 
 //define route
 app.use('/', routers)

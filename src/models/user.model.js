@@ -28,9 +28,10 @@ const userSchema = new mongoose.Schema(
       type: Schema.Types.Boolean,
       default: false
     },
-    roles: {
-      type: Array,
-      default: []
+    role: {
+      type: String,
+      require: true,
+      enum: ['customer', 'admin']
     },
     address: {
       type: String,

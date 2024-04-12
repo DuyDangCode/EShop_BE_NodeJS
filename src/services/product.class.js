@@ -39,9 +39,12 @@ class Product {
     return newProduct
   }
   async updateProduct({ productId, payload }) {
+    const data = payload
+    data.product_quantity = undefined
+
     return await productRepo.updateProductById({
       productId,
-      payload,
+      data,
       model: products.productModel
     })
   }

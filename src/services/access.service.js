@@ -11,7 +11,7 @@ import bcrypt from 'bcrypt'
 import KeyService from './key.service.js'
 import crypto from 'crypto'
 import { createTokenPair, verifyJWT } from '../auth/authUtils.js'
-import { USER_ROLES } from '../constrant/user.constrant.js'
+import { ROLES, USER_ROLES } from '../constrant/user.constrant.js'
 import UserService from './user.service.js'
 import cartModel from '../models/cart.model.js'
 import CartServices from './cart.service.js'
@@ -50,7 +50,7 @@ class AccessService {
       username: username,
       email: email,
       password: passwordHash,
-      roles: [USER_ROLES.user]
+      roles: ROLES.CUSTOMER
     })
 
     if (!newUser) throw new BadRequestError('Create user fail.')
