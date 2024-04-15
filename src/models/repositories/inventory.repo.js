@@ -57,4 +57,30 @@ const returnGoodsInventory = async (invenId, product_quantity, cartId) => {
   return await inventoryModel.updateOne(query, update, option)
 }
 
-export default { createInventory, reservationInventory, returnGoodsInventory }
+const findOneInventory = async (inventoryId) => {
+  return await inventoryModel.findById(convertStringToObjectId(inventoryId))
+}
+
+const findAllInventories = async ({
+  filter = {},
+  limit = 50,
+  skip = 0,
+  sort = { createdAt: -1 },
+  select
+}) => {
+  return await inventoryModel
+    .find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort(sort)
+    .select(select)
+    .lean()
+}
+
+export default {
+  createInventory,
+  reservationInventory,
+  returnGoodsInventory,
+  findOneInventory,
+  findAllInventories
+}

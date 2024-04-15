@@ -36,6 +36,11 @@ const queryAllPublished = async ({
   return await queryProducts({ filter, limit, skip, select, sort: sortBy })
 }
 
+const queryAll = async ({ filter, limit = 50, skip = 1, select, sort }) => {
+  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+  return await queryProducts({ filter, limit, skip, select, sort: sortBy })
+}
+
 const getOneProduct = async ({ productId, unselect }) => {
   return await products.productModel.findById(productId).select(unselect).lean()
 }
@@ -151,5 +156,6 @@ export default {
   getOneProduct,
   updateProductById,
   findProductByName,
-  checkProduct
+  checkProduct,
+  queryAll
 }

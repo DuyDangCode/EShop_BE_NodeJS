@@ -15,7 +15,7 @@ class ProductService {
     ProductService.productRegister[name] = classRef
   }
   static async createProduct(type, payload) {
-    console.log(type)
+    console.log(payload)
     if (
       !payload.product_name ||
       !payload.product_description ||
@@ -26,7 +26,7 @@ class ProductService {
       !payload.originalname ||
       !payload.buffer
     ) {
-      throw new BadRequestError('Something wrong')
+      throw new BadRequestError('Something missed')
     }
 
     payload.product_attributes = JSON.parse(payload.product_attributes)
@@ -48,7 +48,7 @@ class ProductService {
     filter = ''
   }) {
     const skip = (page - 1) * limit
-    return await productRepo.queryAllPublished({
+    return await productRepo.queryAll({
       limit,
       skip,
       sort,
@@ -56,6 +56,29 @@ class ProductService {
         ...splitQueryString(filter),
         'isPublished:true'
       ]),
+      select: getSelectData([
+        ...splitQueryString(select),
+        'product_name',
+        'product_thumb',
+        'product_price',
+        'product_rating'
+      ])
+    })
+  }
+
+  static async getAllProductPublished({
+    limit = 50,
+    page = 1,
+    select = '',
+    sort = 'ctime',
+    filter = ''
+  }) {
+    const skip = (page - 1) * limit
+    return await productRepo.queryAll({
+      limit,
+      skip,
+      sort,
+      filter: getSelectDataWithValue([...splitQueryString(filter)]),
       select: getSelectData([
         ...splitQueryString(select),
         'product_name',

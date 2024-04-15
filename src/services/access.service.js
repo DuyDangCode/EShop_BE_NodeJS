@@ -50,7 +50,7 @@ class AccessService {
       username: username,
       email: email,
       password: passwordHash,
-      roles: ROLES.CUSTOMER
+      role: ROLES.CUSTOMER
     })
 
     if (!newUser) throw new BadRequestError('Create user fail.')
@@ -155,12 +155,14 @@ class AccessService {
       refeshToken: refreshToken
     })
 
-    return {
-      userId: userId,
-      roles: roles,
-      accessToken: accessToken,
-      refreshToken: refreshToken
-    }
+    return 1
+
+    // return {
+    //   userId: userId,
+    //   roles: roles,
+    //   accessToken: accessToken,
+    //   refreshToken: refreshToken
+    // }
   }
 
   static signout = async (keys) => {

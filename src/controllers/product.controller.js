@@ -26,6 +26,13 @@ class ProductController {
     }).send(res)
   }
 
+  static async getAllProductPublied(req, res) {
+    return new OK({
+      message: 'Get all product successful',
+      metadata: await ProductService.getAllProductPublished(req.query)
+    }).send(res)
+  }
+
   static async publishOneProduct(req, res) {
     return new OK({
       message: 'Publish product successful',
