@@ -30,7 +30,7 @@ app.use(
     extended: true
   })
 )
-app.use(checkApiKey)
+// app.use(checkApiKey)
 // app.use(checkPermission(PERMISSIONS.all))
 
 //define route
