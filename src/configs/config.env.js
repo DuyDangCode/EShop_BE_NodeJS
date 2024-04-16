@@ -14,7 +14,8 @@ const PRO = {
   db: {
     host: process.env.PRO_DB_HOST || 'localhost',
     port: process.env.PRO_DB_PORT || 27017,
-    name: process.env.PRO_DB_NAME || 'eshopPRO'
+    name: process.env.PRO_DB_NAME || 'eshopPRO',
+    url: process.env.PRO_MONGODB_URL || 'mongodb://localhost:27017/eshopPRO'
   }
 }
 

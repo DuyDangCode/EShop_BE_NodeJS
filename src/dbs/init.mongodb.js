@@ -1,8 +1,10 @@
 import mongoose from 'mongoose'
 import chalk from 'chalk'
 import { countConnet } from '../helpers/check.connect.js'
-import { DEV } from '../configs/config.env.js'
-const CONNECT_STRING = `mongodb://${DEV.db.host}:${DEV.db.port}/${DEV.db.name}`
+import { DEV, PRO } from '../configs/config.env.js'
+
+const CONNECT_STRING =
+  PRO.db.url || `mongodb://${DEV.db.host}:${DEV.db.port}/${DEV.db.name}`
 
 export const connectMongoDb = () => {
   mongoose

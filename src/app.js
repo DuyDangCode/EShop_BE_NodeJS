@@ -18,8 +18,8 @@ const app = express()
 
 // middleware
 
-// countConnet()
-// checkOverload()
+countConnet()
+checkOverload()
 app.use(cors())
 app.use(morgan('dev'))
 app.use(compression())

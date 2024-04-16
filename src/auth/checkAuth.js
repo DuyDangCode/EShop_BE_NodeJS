@@ -101,6 +101,7 @@ const authentication = asyncHandler(async (req, res, next) => {
 
 const authenticationV2 = async (req, res, next) => {
   // check userId missing
+
   const userId = req.headers[HEADERS.CLIENT]?.toString()
   if (!userId) throw new BadRequestError('Not find client id')
 
@@ -111,7 +112,9 @@ const authenticationV2 = async (req, res, next) => {
   if (!token) throw new BadRequestError('Not find token')
 
   // get keys in dbs
+
   const keysFormDb = await KeyService.findByUserId(userId)
+
   if (!keysFormDb) throw new BadRequestError('User not registed')
 
   handleTokenV2(userId, req, token, keysFormDb, next)

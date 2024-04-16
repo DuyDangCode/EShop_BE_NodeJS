@@ -3,16 +3,16 @@ import { RedisError } from '../core/error.res.js'
 
 // const client = redis.createClient()
 
-const pexpire = async (client, key, time) => {
-  return await client.PEXPIRE(key, time)
+const pexpire = (client, key, time) => {
+  return client.PEXPIRE(key, time)
 }
 
-const setnx = async (client, key, value = '') => {
-  return await client.SETNX(key, value)
+const setnx = (client, key, value = '') => {
+  return client.SETNX(key, value)
 }
 
-const delKey = async (client, key) => {
-  return await client.DEL(key)
+const delKey = (client, key) => {
+  return client.DEL(key)
 }
 
 export { pexpire, setnx, delKey }

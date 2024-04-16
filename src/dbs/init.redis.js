@@ -13,17 +13,17 @@ const handleTimeout = () => {
 
 const handleEventConnect = ({ instanceRedis }) => {
   instanceRedis.on(redisConstrant.status.CONNECT, () => {
-    console.log('redis connected')
+    console.log('E-Shop::: redis connected')
     clearTimeout(timeout)
   })
 
   instanceRedis.on(redisConstrant.status.RECONNECT, () => {
-    console.log('Redis reconnect')
+    console.log('E-Shop::: Redis reconnect')
     // clearTimeout(timeout)
   })
 
   instanceRedis.on(redisConstrant.status.ERROR, () => {
-    console.log('Redis error')
+    console.log('E-Shop::: Redis error')
     handleTimeout()
   })
 

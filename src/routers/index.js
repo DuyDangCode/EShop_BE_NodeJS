@@ -15,5 +15,8 @@ routers.use(`${BASE_URL_V1}/vouchers`, voucherRouter)
 routers.use(`${BASE_URL_V1}/carts`, cartRouter)
 routers.use(`${BASE_URL_V1}/orders`, orderRouter)
 routers.use(`${BASE_URL_V1}/inventories`, inventoryRouter)
+routers.get('/checkHelth', (req, res) => {
+  res.send('E-Shop is running')
+})
 
 export default routers

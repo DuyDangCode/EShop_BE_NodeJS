@@ -32,6 +32,6 @@ productRouter.post(
   '/unpublish',
   asyncHandler(ProductController.unPublishOneProduct)
 )
-productRouter.get('/', asyncHandler(ProductController.getAllProduct))
+productRouter.get('/all', asyncHandler(ProductController.getAllProduct))
 
 export default productRouter

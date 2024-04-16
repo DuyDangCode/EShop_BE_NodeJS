@@ -9,7 +9,7 @@ const aquireLock = async (productId, product_quantity, cartId) => {
     const key = `lock${productId}`
     const RETRY = 5
     const TIMMER = 50
-    const EXPIRE_TIME = 3000
+    const EXPIRE_TIME = 30000
 
     for (let i = 0; i < RETRY; i++) {
       const res = await setnx(client, key)

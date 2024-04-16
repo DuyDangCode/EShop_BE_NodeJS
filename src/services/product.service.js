@@ -40,7 +40,7 @@ class ProductService {
     return await productRepo.queryAllDraft({ limit, skip })
   }
 
-  static async getAllProduct({
+  static getAllProduct({
     limit = 50,
     page = 1,
     select = '',
@@ -48,20 +48,18 @@ class ProductService {
     filter = ''
   }) {
     const skip = (page - 1) * limit
-    return await productRepo.queryAll({
+    return productRepo.queryAll({
       limit,
       skip,
       sort,
-      filter: getSelectDataWithValue([
-        ...splitQueryString(filter),
-        'isPublished:true'
-      ]),
+      filter: getSelectDataWithValue([...splitQueryString(filter)]),
       select: getSelectData([
         ...splitQueryString(select),
         'product_name',
         'product_thumb',
         'product_price',
-        'product_rating'
+        'product_rating',
+        'isPublished'
       ])
     })
   }
@@ -78,7 +76,10 @@ class ProductService {
       limit,
       skip,
       sort,
-      filter: getSelectDataWithValue([...splitQueryString(filter)]),
+      filter: getSelectDataWithValue([
+        ...splitQueryString(filter),
+        'isPublished:true'
+      ]),
       select: getSelectData([
         ...splitQueryString(select),
         'product_name',

@@ -116,7 +116,6 @@ class AccessService {
 
     //check user exist
     if (!user) throw new BadRequestError('User not found')
-
     const {
       _id: userId,
       username: savedUsername,
@@ -155,14 +154,12 @@ class AccessService {
       refeshToken: refreshToken
     })
 
-    return 1
-
-    // return {
-    //   userId: userId,
-    //   roles: roles,
-    //   accessToken: accessToken,
-    //   refreshToken: refreshToken
-    // }
+    return {
+      userId: userId,
+      roles: roles,
+      accessToken: accessToken,
+      refreshToken: refreshToken
+    }
   }
 
   static signout = async (keys) => {

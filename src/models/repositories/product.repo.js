@@ -36,9 +36,9 @@ const queryAllPublished = async ({
   return await queryProducts({ filter, limit, skip, select, sort: sortBy })
 }
 
-const queryAll = async ({ filter, limit = 50, skip = 1, select, sort }) => {
+const queryAll = ({ filter, limit = 50, skip = 1, select, sort }) => {
   const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
-  return await queryProducts({ filter, limit, skip, select, sort: sortBy })
+  return queryProducts({ filter, limit, skip, select, sort: sortBy })
 }
 
 const getOneProduct = async ({ productId, unselect }) => {
