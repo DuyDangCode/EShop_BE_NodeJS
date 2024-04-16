@@ -1,52 +1,76 @@
-import { statusCodes } from './httpStatusCode/statusCodes.js';
-import { reasonPharses } from './httpStatusCode/reasonPhrases.js';
-import { message } from './httpStatusCode/message.js';
+import { statusCodes } from './httpStatusCode/statusCodes.js'
+import { reasonPharses } from './httpStatusCode/reasonPhrases.js'
 class ErrorRes extends Error {
-  constructor(status, message) {
-    super(message);
-    this.status = status;
+  constructor(message, status) {
+    super(message)
+    this.status = status
+    // Error.captureStackTrace(this)
   }
 }
 
 class ConfigRequestError extends ErrorRes {
-  constructor(status = statusCodes.CONFLICT, message = reasonPharses.CONFLICT) {
-    super(status, message);
+  constructor(message = reasonPharses.CONFLICT, status = statusCodes.CONFLICT) {
+    super(message, status)
   }
 }
 
 class BadRequestError extends ErrorRes {
   constructor(
-    status = statusCodes.BAD_REQUEST,
-    message = statusCodes.BAD_REQUEST
+    message = reasonPharses.BAD_REQUEST,
+    status = statusCodes.BAD_REQUEST
   ) {
-    super(status, message);
+    super(message, status)
   }
 }
 
 class ForbiddenError extends ErrorRes {
-  constructor(
-    status = statusCodes.FORBIDDEN,
-    message = reasonPharses.FORBIDDEN
-  ) {
-    super(status, message);
+  constructor({
+    message = reasonPharses.FORBIDDEN,
+    status = statusCodes.FORBIDDEN
+  }) {
+    super(message, status)
   }
 }
 
 class AuthFailError extends ErrorRes {
   constructor(
-    status = statusCodes.BAD_REQUEST,
-    message = reasonPharses.BAD_REQUEST
+    message = reasonPharses.BAD_REQUEST,
+    status = statusCodes.BAD_REQUEST
   ) {
-    super(status, message);
+    super(message, status)
   }
 }
 
 class VoucherInvalidError extends ErrorRes {
-  constructor({
-    status = statusCodes.BAD_REQUEST,
-    message = message.VoucherInvalid,
-  }) {
-    super(status, message);
+  constructor(
+    message = reasonPharses.BAD_REQUEST,
+    status = statusCodes.BAD_REQUEST
+  ) {
+    super(message, status)
+  }
+}
+
+class RedisError extends ErrorRes {
+  constructor(
+    message = 'redis has some error',
+    status = statusCodes.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status)
+  }
+}
+
+class InternalServerError extends ErrorRes {
+  constructor(
+    message = 'something went wrong',
+    status = statusCodes.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status)
+  }
+}
+
+class OrderError extends ErrorRes {
+  constructor(message = 'order fail', status = statusCodes.BAD_REQUEST) {
+    super(message, status)
   }
 }
 
@@ -56,4 +80,7 @@ export {
   ForbiddenError,
   AuthFailError,
   VoucherInvalidError,
-};
+  RedisError,
+  OrderError,
+  InternalServerError
+}

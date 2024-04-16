@@ -1,37 +1,38 @@
-import { BadRequestError, VoucherInvalidError } from '../core/error.res.js';
-import { message } from '../core/httpStatusCode/message.js';
-import { statusCodes } from '../core/httpStatusCode/statusCodes.js';
-import productRepo from '../models/repositories/product.repo.js';
+import { BadRequestError, VoucherInvalidError } from '../core/error.res.js'
+import { message } from '../core/httpStatusCode/message.js'
+import { statusCodes } from '../core/httpStatusCode/statusCodes.js'
+import productRepo from '../models/repositories/product.repo.js'
 import {
   createVoucher,
   findVoucherByCode,
-  updateVoucherById,
-} from '../models/repositories/voucher.repo.js';
+  findVoucherByIdPublish,
+  updateVoucherById
+} from '../models/repositories/voucher.repo.js'
 
 class VoucherService {
   static validateDate = ({ voucher_start_day, voucher_end_day }) => {
-    const startDay = new Date(voucher_start_day);
-    const endDay = new Date(voucher_end_day);
-    const currentDay = new Date();
+    const startDay = new Date(voucher_start_day)
+    const endDay = new Date(voucher_end_day)
+    const currentDay = new Date()
 
     if (endDay < currentDay)
-      throw new VoucherInvalidError({
-        message: 'The end date cannot be less than the current date',
-      });
+      throw new VoucherInvalidError(
+        'The end date cannot be less than the current date'
+      )
 
     if (startDay > endDay)
-      throw new BadRequestError({
-        message: 'The start date cannot be greater than the end date',
-      });
-  };
+      throw new VoucherInvalidError(
+        'The start date cannot be greater than the end date'
+      )
+  }
 
   static countUserUsed({ voucher_users_used = [], userId }) {
-    let count = 0;
+    let count = 0
     voucher_users_used.find((user) => {
-      if (user === userId) count++;
-      return false;
-    });
-    return count;
+      if (user === userId) count++
+      return false
+    })
+    return count
   }
 
   static calTotalOrderValue(products = []) {
@@ -39,7 +40,7 @@ class VoucherService {
       (total, product) =>
         total + product.product_price * product.product_quantity,
       0
-    );
+    )
   }
 
   // create voucher by admin
@@ -56,13 +57,12 @@ class VoucherService {
     voucher_min_order_value,
     voucher_is_activate,
     voucher_applies_to,
-    voucher_product_ids,
+    voucher_product_ids
   }) {
-    VoucherService.validateDate({ voucher_start_day, voucher_end_day });
+    VoucherService.validateDate({ voucher_start_day, voucher_end_day })
 
-    const foundVoucher = await findVoucherByCode(voucher_code);
-    if (foundVoucher)
-      throw new VoucherInvalidError({ message: 'Voucher is exists' });
+    const foundVoucher = await findVoucherByCode(voucher_code)
+    if (foundVoucher) throw new VoucherInvalidError('Voucher is exists')
 
     return await createVoucher({
       voucher_name,
@@ -77,8 +77,8 @@ class VoucherService {
       voucher_min_order_value,
       voucher_is_activate,
       voucher_applies_to,
-      voucher_product_ids,
-    });
+      voucher_product_ids
+    })
   }
 
   // update voucher by admin
@@ -95,9 +95,9 @@ class VoucherService {
     voucher_min_order_value,
     voucher_is_activate,
     voucher_applies_to,
-    voucher_product_ids,
+    voucher_product_ids
   }) {
-    VoucherService.validateDate({ voucher_start_day, voucher_end_day });
+    VoucherService.validateDate({ voucher_start_day, voucher_end_day })
     return await updateVoucherById(_id, {
       voucher_name,
       voucher_description,
@@ -110,30 +110,41 @@ class VoucherService {
       voucher_min_order_value,
       voucher_is_activate,
       voucher_applies_to,
-      voucher_product_ids,
-    });
+      voucher_product_ids
+    })
   }
 
   /**
-   * @argument voucher_code
-   * @argument products = {
-   *  product_name,
+   * @argument voucherId
+   * @argument product = {
+   *  productId,
    *  product_quantity,
    *  product_price,
    * }
    * @argument userId
    * @returns totalCost
    */
-  static async applyVoucher({ voucher_code, products = [], userId }) {
-    if (products.length === 0)
-      throw new BadRequestError(statusCodes.BAD_REQUEST, 'Products is empty');
+  static async applyVoucher({
+    voucherId,
+    productId,
+    product_quantity,
+    product_price,
+    userId
+  }) {
+    if (
+      !voucherId ||
+      !product_price ||
+      !product_quantity ||
+      !productId ||
+      !userId
+    )
+      throw new BadRequestError('Something wrong')
 
     //validata voucher
-    const foundVoucher = await findVoucherByCode(voucher_code);
+    const foundVoucher = await findVoucherByIdPublish(voucherId)
 
     //check voucher exists
-    if (!foundVoucher)
-      throw new VoucherInvalidError({ message: 'Voucher not exists' });
+    if (!foundVoucher) throw new VoucherInvalidError('Voucher not exists')
 
     const {
       _id,
@@ -147,73 +158,53 @@ class VoucherService {
       voucher_product_ids,
       voucher_type,
       voucher_value,
-      voucher_max_uses,
-    } = foundVoucher;
+      voucher_max_uses
+    } = foundVoucher
 
     //check voucher date
-    VoucherService.validateDate({ voucher_end_day });
+    VoucherService.validateDate({ voucher_end_day })
 
     //check voucher status
-    if (!voucher_is_activate) throw new VoucherInvalidError();
+    if (!voucher_is_activate) throw new VoucherInvalidError()
     //check voucher amount
-    if (voucher_max_uses === voucher_user_count)
-      throw new VoucherInvalidError();
+    if (voucher_max_uses === voucher_user_count) throw new VoucherInvalidError()
     if (
       VoucherService.countUserUsed({ voucher_users_used, userId }) ===
       voucher_max_use_per_user
     )
-      throw new VoucherInvalidError({ message: 'The number of uses is 0' });
+      throw new VoucherInvalidError('The number of uses is 0')
 
     //check product
     if (voucher_applies_to === 'specific') {
       products.map(async (product) => {
-        const foundProduct = await productRepo.findProductByName(
-          product.product_name
-        );
-        if (!foundProduct)
-          throw new BadRequestError(
-            statusCodes.BAD_REQUEST,
-            'Cant find product'
-          );
+        const foundProduct = await productRepo.findProductByIdPublish(productId)
+        if (!foundProduct) throw new BadRequestError('Cant find product')
 
-        if (voucher_product_ids.includes(foundProduct._id))
-          throw new BadRequestError(statusCodes.BAD_REQUEST, 'Invalid product');
+        if (!voucher_product_ids.includes(foundProduct._id))
+          throw new BadRequestError('Invalid product')
 
         if (foundProduct.product_quantity < product.product_quantity)
-          throw new BadRequestError(
-            statusCodes.BAD_REQUEST,
-            'Not enough goods'
-          );
-      });
+          throw new BadRequestError('Not enough goods')
+      })
     }
 
     //check order value
-    const orderValue = VoucherService.calTotalOrderValue(products);
+    const orderValue = VoucherService.calTotalOrderValue([
+      {
+        product_price,
+        product_quantity
+      }
+    ])
     if (orderValue < voucher_min_order_value)
-      throw new VoucherInvalidError({
-        message: 'The order does not meet the requirements to use the voucher',
-      });
-
-    const update = {
-      $push: {
-        voucher_users_used: userId,
-      },
-      $inc: {
-        voucher_user_count: 1,
-      },
-    };
-    const result = await updateVoucherById(_id, update);
-    if (!result)
-      throw new BadRequestError(
-        statusCodes.BAD_REQUEST,
-        'something went wrong'
-      );
+      throw new VoucherInvalidError(
+        'The order does not meet the requirements to use the voucher'
+      )
 
     if (voucher_type === 'fixed_amount') {
-      return orderValue - voucher_value;
+      return orderValue - voucher_value
     }
-    return orderValue - orderValue * voucher_value;
+    return orderValue - orderValue * voucher_value
   }
 }
 
-export default VoucherService;
+export default VoucherService

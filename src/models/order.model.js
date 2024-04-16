@@ -1,45 +1,46 @@
-'use strict';
+'use strict'
 
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'
 
-const DOCUMENT_NAME = 'order';
-const COLLECTION_NAME = 'orders';
+const DOCUMENT_NAME = 'order'
+const COLLECTION_NAME = 'orders'
 
 const orderSchema = new mongoose.Schema(
   {
     order_user: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
       required: true,
+      ref: 'user'
     },
     order_checkout: {
       type: Object,
-      required: true,
+      required: true
     },
     //address
     order_shipping: {
       type: String,
-      required: true,
+      required: true
     },
     //payment status
     order_payment: {
       type: String,
       enum: ['online', 'upon receipt'],
-      required: true,
+      required: true
     },
     order_products: {
       type: Array,
-      required: true,
+      required: true
     },
     order_tracking: {
-      type: String,
+      type: String
     },
     order_status: {
       type: String,
       enum: ['pending', 'confirm', 'shipping', 'shipped', 'delivered'],
-      default: 'pending',
-    },
+      default: 'pending'
+    }
   },
   { timestamps: true, collection: COLLECTION_NAME }
-);
+)
 
-export default new mongoose.model(DOCUMENT_NAME, orderSchema);
+export default new mongoose.model(DOCUMENT_NAME, orderSchema)
