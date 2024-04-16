@@ -12,7 +12,7 @@ import { asyncHandler } from './helpers/index.helper.js'
 import cors from 'cors'
 
 const database = Database.getInstance()
-database.connect('redis')
+// database.connect('redis')
 
 const app = express()
 
