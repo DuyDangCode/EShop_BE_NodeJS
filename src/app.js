@@ -10,6 +10,7 @@ import { checkApiKey, checkPermission } from './auth/checkAuth.js'
 import { PERMISSIONS } from './constrant/apiKey.constrant.js'
 import { asyncHandler } from './helpers/index.helper.js'
 import cors from 'cors'
+import { BASE_URL_V1 } from './constrant/system.constrant.js'
 
 const database = Database.getInstance()
 database.connect('redis')
@@ -18,8 +19,8 @@ const app = express()
 
 // middleware
 
-countConnet()
-checkOverload()
+// countConnet()
+// checkOverload()
 app.use(cors())
 app.use(morgan('dev'))
 app.use(compression())
@@ -30,7 +31,12 @@ app.use(
     extended: true
   })
 )
-// app.use(checkApiKey)
+
+app.get(`${BASE_URL_V1}/checkHealth`, (req, res) => {
+  res.send({ message: 'E-Shop is running' })
+})
+
+app.use(checkApiKey)
 // app.use(checkPermission(PERMISSIONS.all))
 
 //define route
