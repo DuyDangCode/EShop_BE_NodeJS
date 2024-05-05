@@ -11,7 +11,7 @@ class InventorySevice {
       limit,
       skip,
       sort,
-      select
+      select,
     })
   }
 

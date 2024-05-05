@@ -4,19 +4,21 @@ import { convertStringToObjectId } from '../../utils/index.js'
 const createInventory = async ({
   inven_productId,
   inven_stock,
-  inven_location = 'unknow'
+  inven_location,
+  inven_import,
 }) => {
   return await inventoryModel.create({
     inven_productId,
     inven_stock,
-    inven_location
+    inven_location,
+    inven_import,
   })
 }
 
 const reservationInventory = async (productId, product_quantity, cartId) => {
   const query = {
       inven_productId: convertStringToObjectId(productId),
-      inven_stock: { $gte: product_quantity }
+      inven_stock: { $gte: product_quantity },
     },
     update = {
       $inc: { inven_stock: -product_quantity },
@@ -24,13 +26,13 @@ const reservationInventory = async (productId, product_quantity, cartId) => {
         inven_reservation: {
           cartId,
           product_quantity,
-          createOn: new Date()
-        }
-      }
+          createOn: new Date(),
+        },
+      },
     },
     option = {
       new: true,
-      fields: '_id'
+      fields: '_id',
     }
 
   return await inventoryModel.findOneAndUpdate(query, update, option)
@@ -38,7 +40,7 @@ const reservationInventory = async (productId, product_quantity, cartId) => {
 
 const returnGoodsInventory = async (invenId, product_quantity, cartId) => {
   const query = {
-      _id: convertStringToObjectId(invenId)
+      _id: convertStringToObjectId(invenId),
     },
     update = {
       $inc: { inven_stock: product_quantity },
@@ -46,12 +48,12 @@ const returnGoodsInventory = async (invenId, product_quantity, cartId) => {
         inven_return_goods: {
           cartId,
           product_quantity,
-          createOn: new Date()
-        }
-      }
+          createOn: new Date(),
+        },
+      },
     },
     option = {
-      new: true
+      new: true,
     }
 
   return await inventoryModel.updateOne(query, update, option)
@@ -66,7 +68,7 @@ const findAllInventories = async ({
   limit = 50,
   skip = 0,
   sort = { createdAt: -1 },
-  select
+  select,
 }) => {
   return await inventoryModel
     .find(filter)
@@ -82,5 +84,5 @@ export default {
   reservationInventory,
   returnGoodsInventory,
   findOneInventory,
-  findAllInventories
+  findAllInventories,
 }

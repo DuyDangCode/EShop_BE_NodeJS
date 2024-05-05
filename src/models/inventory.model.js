@@ -8,29 +8,37 @@ const inventorySchema = new mongoose.Schema(
     inven_productId: {
       type: mongoose.Types.ObjectId,
       required: true,
-      ref: 'product'
+      ref: 'product',
     },
     inven_stock: {
       type: Number,
-      required: true
+      required: true,
     },
     inven_location: {
       type: String,
-      default: 'unKnow'
+      default: 'unKnow',
     },
     inven_reservation: {
       type: Array,
-      default: []
+      default: [],
     },
     inven_return_goods: {
       type: Array,
-      default: []
-    }
+      default: [],
+    },
+    inven_import: {
+      type: Array,
+      default: [],
+    },
+    inven_export: {
+      type: Array,
+      default: [],
+    },
   },
   {
     timestamps: true,
-    collection: COLLECTION_NAME
-  }
+    collection: COLLECTION_NAME,
+  },
 )
 
 export default mongoose.model(DOCUMENT_NAME, inventorySchema)

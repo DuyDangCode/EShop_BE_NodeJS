@@ -1,13 +1,16 @@
+import { HEADERS } from '../constrant/req.constrant.js'
 import { BadRequestError } from '../core/error.res.js'
 import { CREATED, OK } from '../core/success.res.js'
 import ProductService from '../services/product.service.js'
 class ProductController {
   static async createProduct(req, res) {
+    console.log(req.body)
     return new CREATED({
       message: 'Create product successful',
       metadata: await ProductService.createProduct(req.body.product_type, {
         ...req.body,
         ...req.file,
+        userId: req.headers[HEADERS.CLIENT],
       }),
     }).send(res)
   }

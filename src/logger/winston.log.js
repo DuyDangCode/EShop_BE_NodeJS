@@ -1,0 +1,3 @@
+class WinstonLogger {
+  constructor() {}
+}
