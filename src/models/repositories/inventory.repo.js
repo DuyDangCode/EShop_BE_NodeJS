@@ -79,10 +79,37 @@ const findAllInventories = async ({
     .lean()
 }
 
+const importInventory = async (userId, productId, quantity) => {
+  return await inventoryModel.findOneAndUpdate(
+    { inven_productId: convertStringToObjectId(productId) },
+    {
+      $inc: { inven_stock: quantity },
+      $push: { inven_import: { userId, product_quantity: quantity } },
+    },
+    {
+      new: true,
+    },
+  )
+}
+const exportInventory = async (userId, productId, quantity) => {
+  return await inventoryModel.updateOne(
+    { inven_productId: convertStringToObjectId(productId) },
+    {
+      $inc: { inven_stock: -quantity },
+      $push: { inven_export: { userId, product_quantity: quantity } },
+    },
+    {
+      new: true,
+    },
+  )
+}
+
 export default {
   createInventory,
   reservationInventory,
   returnGoodsInventory,
   findOneInventory,
   findAllInventories,
+  importInventory,
+  exportInventory,
 }

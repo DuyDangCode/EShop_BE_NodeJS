@@ -1,4 +1,5 @@
 import inventoryRepo from '../models/repositories/inventory.repo.js'
+import productRepo from '../models/repositories/product.repo.js'
 class InventorySevice {
   static async getOneInventory(inventoryId) {
     return await inventoryRepo.findOneInventory(inventoryId)
@@ -25,9 +26,39 @@ class InventorySevice {
    *
    * ]
    */
-  static async import() {}
+  static async import(userId, inven_productId, inven_stock) {
+    if (userId && inven_productId && inven_stock)
+      throw new BadRequestError('Something is missing')
+    const resultUpdateInven = await inventoryRepo.importInventory(
+      userId,
+      inven_productId,
+      inven_stock,
+    )
+    if (resultUpdateInven) {
+      productRepo.updateProductQuantityById(
+        inven_productId,
+        resultUpdateInven.inven_stock,
+      )
+    }
+    return resultUpdateInven
+  }
 
-  static async export() {}
+  static async export(userId, inven_productId, inven_stock) {
+    if (userId && inven_productId && inven_stock)
+      throw new BadRequestError('Something is missing')
+    const resultUpdateInven = await inventoryRepo.exportInventory(
+      userId,
+      inven_productId,
+      inven_stock,
+    )
+    if (resultUpdateInven) {
+      productRepo.updateProductQuantityById(
+        inven_productId,
+        resultUpdateInven.inven_stock,
+      )
+    }
+    return resultUpdateInven
+  }
 }
 
 export default InventorySevice
