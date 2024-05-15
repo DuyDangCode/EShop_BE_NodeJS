@@ -23,7 +23,8 @@ class ProductService {
       !payload.product_type ||
       !payload.product_attributes ||
       !payload.originalname ||
-      !payload.buffer
+      !payload.buffer ||
+      !payload.userId
     ) {
       throw new BadRequestError('Something missed')
     }

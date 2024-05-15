@@ -90,6 +90,15 @@ const updateProductById = async ({
   return await model.findByIdAndUpdate(productId, payload, { new: isNew })
 }
 
+const updateProductQuantityById = async (productId, product_quantity) => {
+  return await products.productModel.updateOne(
+    {
+      _id: convertStringToObjectId(productId),
+    },
+    { $set: { product_quantity } },
+  )
+}
+
 const findProductByName = async (product_name) => {
   return await products
     .productModel(
@@ -167,4 +176,5 @@ export default {
   checkProduct,
   queryAll,
   getPublishedProductByCatergory,
+  updateProductQuantityById,
 }
