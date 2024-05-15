@@ -4,7 +4,7 @@ import {
   getSelectData,
   splitQueryString,
   getSelectDataWithValue,
-  unselectData
+  unselectData,
 } from '../utils/index.js'
 import productConfig from './product.config.js'
 
@@ -15,7 +15,6 @@ class ProductService {
     ProductService.productRegister[name] = classRef
   }
   static async createProduct(type, payload) {
-    console.log(payload)
     if (
       !payload.product_name ||
       !payload.product_description ||
@@ -24,7 +23,8 @@ class ProductService {
       !payload.product_type ||
       !payload.product_attributes ||
       !payload.originalname ||
-      !payload.buffer
+      !payload.buffer ||
+      !payload.userId
     ) {
       throw new BadRequestError('Something missed')
     }
@@ -45,7 +45,7 @@ class ProductService {
     page = 1,
     select = '',
     sort = 'ctime',
-    filter = ''
+    filter = '',
   }) {
     const skip = (page - 1) * limit
     return productRepo.queryAll({
@@ -59,8 +59,8 @@ class ProductService {
         'product_thumb',
         'product_price',
         'product_rating',
-        'isPublished'
-      ])
+        'isPublished',
+      ]),
     })
   }
 
@@ -69,7 +69,7 @@ class ProductService {
     page = 1,
     select = '',
     sort = 'ctime',
-    filter = ''
+    filter = '',
   }) {
     const skip = (page - 1) * limit
     return await productRepo.queryAll({
@@ -78,15 +78,15 @@ class ProductService {
       sort,
       filter: getSelectDataWithValue([
         ...splitQueryString(filter),
-        'isPublished:true'
+        'isPublished:true',
       ]),
       select: getSelectData([
         ...splitQueryString(select),
         'product_name',
         'product_thumb',
         'product_price',
-        'product_rating'
-      ])
+        'product_rating',
+      ]),
     })
   }
 
@@ -105,7 +105,7 @@ class ProductService {
   static async getOneProduct({ productId, unselect }) {
     return await productRepo.getOneProduct({
       productId,
-      unselect: unselectData([...splitQueryString(unselect), '__v'])
+      unselect: unselectData([...splitQueryString(unselect), '__v']),
     })
   }
 
@@ -113,6 +113,20 @@ class ProductService {
     const productClass = ProductService.productRegister[type]
     if (!productClass) throw new BadRequestError('Not find class')
     return await new productClass(payload).updateProduct(productId)
+  }
+
+  static async getPublishedProductByCatergory({
+    product_type,
+    limit = 10,
+    page = 1,
+  }) {
+    if (!product_type) throw new BadRequestError('Product type is required')
+    const skip = (page - 1) * limit
+    return await productRepo.getPublishedProductByCatergory(
+      product_type,
+      limit,
+      skip,
+    )
   }
 }
 

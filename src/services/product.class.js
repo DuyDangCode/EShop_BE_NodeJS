@@ -16,7 +16,8 @@ class Product {
     product_type,
     product_attributes,
     originalname,
-    buffer
+    buffer,
+    userId,
   }) {
     this.product_name = product_name
     this.product_thumb = ''
@@ -27,12 +28,13 @@ class Product {
     this.product_attributes = product_attributes
     this.originalnameImage = originalname
     this.bufferImage = buffer
+    this.userId = userId
   }
   async createProduct(id) {
     // this.product_quantity = null;
     const file = decodeBase64ForMulter(
       this.originalnameImage,
-      this.bufferImage
+      this.bufferImage,
     ).content
     const uploadImageResult = await cloudinaryUploader.upload(file)
     this.product_thumb = uploadImageResult.url
@@ -42,10 +44,18 @@ class Product {
     const newInventory = await inventoryRepo.createInventory({
       inven_productId: newProduct._id,
       inven_stock: newProduct.product_quantity,
-      inven_location: 'unKnow'
+      inven_location: 'unKnow',
+      inven_import:
+        newProduct.product_quantity !== 0
+          ? [
+              {
+                userId: this.userId,
+                product_quantity: newProduct.product_quantity,
+              },
+            ]
+          : [],
     })
     if (!newInventory) {
-      //await products.productModel.findByIdAndRemove(newProduct._id);
       throw new BadRequestError('Create new inventory fail')
     }
 
@@ -58,7 +68,7 @@ class Product {
     return await productRepo.updateProductById({
       productId,
       data,
-      model: products.productModel
+      model: products.productModel,
     })
   }
 }
@@ -79,7 +89,7 @@ export class Laptop extends Product {
       await productRepo.updateProductById({
         productId,
         payload: payload.product_attributes,
-        model: products.laptopModel
+        model: products.laptopModel,
       })
     }
     //update product in parent
@@ -102,7 +112,7 @@ export class PC extends Product {
       await productRepo.updateProductById({
         productId,
         payload: payload.product_attributes,
-        model: products.pcModel
+        model: products.pcModel,
       })
     }
     //update product in parent
@@ -125,7 +135,7 @@ export class Screen extends Product {
       await productRepo.updateProductById({
         productId,
         payload: payload.product_attributes,
-        model: products.screenModel
+        model: products.screenModel,
       })
     }
     //update product in parent

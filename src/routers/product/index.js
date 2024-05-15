@@ -8,29 +8,33 @@ const productRouter = express.Router()
 
 productRouter.get(
   '/published/all',
-  asyncHandler(ProductController.getAllProductPublied)
+  asyncHandler(ProductController.getAllProductPublied),
 )
+productRouter.get(
+  '/published/:product_type',
+  asyncHandler(ProductController.getPublishedProductByCategory),
+)
+
 productRouter.get('/search/:keyword', asyncHandler(ProductController.search))
 productRouter.get('', asyncHandler(ProductController.getOneProduct))
-
 productRouter.use(checkRoleAdmin)
 productRouter.post(
   '',
   multerUploadSingleImage,
-  asyncHandler(ProductController.createProduct)
+  asyncHandler(ProductController.createProduct),
 )
 productRouter.patch(
   '/:productId',
-  asyncHandler(ProductController.updateProduct)
+  asyncHandler(ProductController.updateProduct),
 )
 productRouter.get('/draft/all', asyncHandler(ProductController.getAllDraft))
 productRouter.post(
   '/publish',
-  asyncHandler(ProductController.publishOneProduct)
+  asyncHandler(ProductController.publishOneProduct),
 )
 productRouter.post(
   '/unpublish',
-  asyncHandler(ProductController.unPublishOneProduct)
+  asyncHandler(ProductController.unPublishOneProduct),
 )
 productRouter.get('/all', asyncHandler(ProductController.getAllProduct))
 
