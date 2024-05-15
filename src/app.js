@@ -11,6 +11,8 @@ import { PERMISSIONS } from './constrant/apiKey.constrant.js'
 import { asyncHandler } from './helpers/index.helper.js'
 import cors from 'cors'
 import { BASE_URL_V1 } from './constrant/system.constrant.js'
+import { v4 as uuidv4 } from 'uuid'
+import logger from './core/logger.js'
 
 const database = Database.getInstance()
 database.connect('redis')
@@ -19,6 +21,15 @@ const app = express()
 
 // middleware
 
+app.use((req, res, next) => {
+  req.requestId = req.headers['requestId'] || uuidv4()
+  logger.logInfo('input params', {
+    context: req.path,
+    request: req.requestId,
+    data: req.method === 'post' ? req.body : req.query,
+  })
+  next()
+})
 // countConnet()
 // checkOverload()
 app.use(cors())
@@ -28,8 +39,8 @@ app.use(helmet())
 app.use(express.json())
 app.use(
   express.urlencoded({
-    extended: true
-  })
+    extended: true,
+  }),
 )
 
 app.get(`${BASE_URL_V1}/checkHealth`, (req, res) => {
@@ -52,11 +63,11 @@ app.use((req, res, next) => {
 
 app.use((error, req, res, next) => {
   const statusCode = error.status || 500
-  console.error(`E-Shop:::Error::: ${error.message}`)
+  logger.logErr(error.message, { context: req.path, requestId: req.requestId })
   return res.status(statusCode).json({
     status: 'error',
     code: statusCode,
-    message: error.message || 'Internal server error'
+    message: error.message || 'Internal server error',
   })
 })
 

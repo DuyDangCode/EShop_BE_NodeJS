@@ -3,22 +3,22 @@ import 'winston-daily-rotate-file'
 class Logger {
   constructor() {
     const customFormat = format.printf(
-      (level, message, context, requestId, datetime, requestBody) =>
-        `${level}::${message}::${requestId}::${datetime}::${context}::${JSON.stringify(requestBody)}`,
+      ({ level, message, context, requestId, timestamp, data }) =>
+        `${level}::${message}::${requestId}::${timestamp}::${context}::${JSON.stringify(data)}`,
     )
 
     this.winstonLogger = createLogger({
       level: process.env.LEVEL_LOGGER || 'info',
-      format: format.combine([
+      format: format.combine(
         format.timestamp({ format: 'YYYY-MM-DD hh:mm:ss' }),
         customFormat,
-      ]),
+      ),
       transports: [
         new transports.Console({
           level: 'info',
         }),
         new transports.DailyRotateFile({
-          dirname: 'logs/info',
+          dirname: 'src/logs/info',
           filename: 'logs/info-%DATE%.log',
           level: 'info',
           datePattern: 'YYYY-MM-DD-hh',
@@ -27,9 +27,9 @@ class Logger {
           zippedArchive: true,
         }),
         new transports.DailyRotateFile({
-          dirname: 'logs/error',
+          dirname: 'src/logs/error',
           filename: 'logs/error-%DATE%.log',
-          level: 'info',
+          level: 'error',
           datePattern: 'YYYY-MM-DD-hh',
           maxSize: '2m',
           maxFiles: '15d',
