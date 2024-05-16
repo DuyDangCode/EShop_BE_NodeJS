@@ -1,10 +1,7 @@
 import { BadRequestError } from '../core/error.res.js'
 import commentModel from '../models/comment.model.js'
 import MESSAGE from '../core/message.js'
-import {
-  createComment,
-  getOneCommentById,
-} from '../models/repositories/comment.repo.js'
+import { createComment } from '../models/repositories/comment.repo.js'
 import { convertStringToObjectId } from '../utils/index.js'
 class CommentService {
   // {
@@ -40,36 +37,14 @@ class CommentService {
       throw new BadRequestError(MESSAGE.missParams)
     if (comment_parrentId) {
       //reply comment
-      const parrentComment = await getOneCommentById({ comment_parrentId })
-      if (!parrentComment) throw new BadRequestError('not find comment')
+    const parrentComment = await getOneCommentById(comment_parrentId) 
       const left = parrentComment.comment_right
       const right = left + 1
-      //update comments
-      await commentModel.updateMany(
-        {
-          comment_productId: convertStringToObjectId(comment_productId),
-          comment_right: { $gte: left },
-          comment_left: { $gt: left },
-        },
-        { $inc: { comment_left: 2, comment_right: 2 } },
-      )
-      await commentModel.updateMany(
-        {
-          comment_productId: convertStringToObjectId(comment_productId),
-          comment_right: { $gte: left },
-          comment_left: { $lt: left },
-        },
-        { $inc: { comment_right: 2 } },
-      )
-      return await createComment({
-        comment_productId,
-        comment_userId,
-        comment_parrentId,
-        comment_content,
-        comment_left: left,
-        comment_right: right,
-      })
+      //update comments 
+      await commentModel.updateMany({comment_right: {$gt:right}, {$inc: {comment_left: 2, comment_right: 2}
+      }) 
     } else {
+
       const comment = await commentModel.aggregate([
         {
           $match: {

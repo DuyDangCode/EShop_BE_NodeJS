@@ -42,6 +42,6 @@ const commentSchema = new Schema(
   },
 )
 
-commentSchema.index({ comment_productId: 1 })
+commentSchema.index({ comment_productId: 1, comment_right: 1, comment_left: 1 })
 
 export default model(DOCUMENT_NAME, commentSchema)
