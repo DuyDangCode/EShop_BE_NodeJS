@@ -8,7 +8,7 @@ dotenv.config()
 const PORT = DEV.app.port || 8080
 
 const server = app.listen(PORT, () => {
-  console.log(chalk.green('E-Shop::: Server is running at port: ${PORT}'))
+  console.log(chalk.green(`E-Shop::: Server is running at port: ${PORT}`))
 })
 
 const exitHandler = terminate(server, { coredump: false, timeout: 500 })
