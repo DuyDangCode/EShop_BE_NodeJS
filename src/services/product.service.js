@@ -128,6 +128,10 @@ class ProductService {
       skip,
     )
   }
+
+  static async getTotalPublisedProduct(product_type) {
+    return await productRepo.getTotalPublishedProduct(product_type)
+  }
 }
 
 //add register

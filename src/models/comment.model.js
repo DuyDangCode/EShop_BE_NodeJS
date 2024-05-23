@@ -1,19 +1,19 @@
-import { model, Types, Schema } from 'mongoose'
+import { model, Types, Schema } from "mongoose";
 
-const COLLECTION_NAME = 'comments'
-const DOCUMENT_NAME = 'comment'
+const COLLECTION_NAME = "comments";
+const DOCUMENT_NAME = "comment";
 
 const commentSchema = new Schema(
   {
     comment_productId: {
       type: Types.ObjectId,
-      ref: 'products',
+      ref: "products",
       required: true,
     },
     comment_userId: {
       type: Types.ObjectId,
       required: true,
-      ref: 'users',
+      ref: "users",
     },
     comment_content: {
       type: String,
@@ -21,7 +21,7 @@ const commentSchema = new Schema(
     },
     comment_parrentId: {
       type: Types.ObjectId,
-      ref: 'comments',
+      ref: "comments",
     },
     comment_left: {
       type: Number,
@@ -40,8 +40,11 @@ const commentSchema = new Schema(
     timestamps: true,
     collection: COLLECTION_NAME,
   },
-)
+);
+commentSchema.index({
+  comment_productId: 1,
+  comment_right: 1,
+  comment_left: 1,
+});
 
-commentSchema.index({ comment_productId: 1, comment_right: 1, comment_left: 1 })
-
-export default model(DOCUMENT_NAME, commentSchema)
+export default model(DOCUMENT_NAME, commentSchema);

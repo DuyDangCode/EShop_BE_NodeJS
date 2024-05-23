@@ -84,6 +84,14 @@ class ProductController {
       }),
     }).send(res)
   }
+  static async getTotalPublishedProduct(req, res) {
+    return new OK({
+      message: '',
+      metadata: await ProductService.getTotalPublisedProduct(
+        req?.query?.product_type,
+      ),
+    }).send(res)
+  }
 }
 
 export default ProductController

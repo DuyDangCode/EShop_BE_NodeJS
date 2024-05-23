@@ -161,6 +161,17 @@ const getPublishedProductByCatergory = async (product_type, limit, skip) => {
     .lean()
 }
 
+const getTotalPublishedProduct = async (product_type) => {
+  // product_type, isDraft: false, isPublished: true
+  const result = await products.productModel.aggregate([
+    { $match: { product_type, isDraft: false, isPublished: true } },
+    {
+      $count: 'total',
+    },
+  ])
+  return result.length > 0 ? result?.[0] : { total: 0 }
+}
+
 export default {
   findProductByIdPricePublish,
   findProductByIdPublish,
@@ -177,4 +188,5 @@ export default {
   queryAll,
   getPublishedProductByCatergory,
   updateProductQuantityById,
+  getTotalPublishedProduct,
 }
