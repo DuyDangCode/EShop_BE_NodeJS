@@ -6,6 +6,7 @@ import {
   getOneCommentById,
 } from '../models/repositories/comment.repo.js'
 import { convertStringToObjectId } from '../utils/index.js'
+import commentRouter from '../routers/comment/index.js'
 class CommentService {
   // {
   //     comment_productId: {
@@ -101,6 +102,25 @@ class CommentService {
         comment_right: right,
       })
     }
+  }
+
+  static async getTotalCommentByProductId(comment_productId) {
+    if (!comment_productId) throw new BadRequestError(MESSAGE.missParams)
+    const result = await commentModel.aggregate([
+      {
+        $match: {
+          comment_productId: convertStringToObjectId(comment_productId),
+          comment_isDeleted: false,
+        },
+      },
+      { $count: 'total' },
+    ])
+
+    return result.length > 0
+      ? result[0]
+      : {
+          total: 0,
+        }
   }
 }
 

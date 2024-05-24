@@ -9,6 +9,14 @@ class CommentController {
       metadata: await CommentService.insertComment(req.body),
     }).send(res)
   }
+  static async getTotalCommentByProductId(req, res, next) {
+    return new OK({
+      message: 'Get total comment successful',
+      metadata: await CommentService.getTotalCommentByProductId(
+        req?.query?.comment_productId,
+      ),
+    }).send(res)
+  }
 }
 
 export default CommentController

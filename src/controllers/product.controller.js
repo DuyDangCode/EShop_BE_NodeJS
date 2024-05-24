@@ -86,7 +86,7 @@ class ProductController {
   }
   static async getTotalPublishedProduct(req, res) {
     return new OK({
-      message: '',
+      message: 'Get total product successful',
       metadata: await ProductService.getTotalPublisedProduct(
         req?.query?.product_type,
       ),
