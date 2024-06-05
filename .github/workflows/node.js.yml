@@ -24,6 +24,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: echo $'DEV_APP_PORT=${{secrets.DEV_APP_PORT}}\nPRO_APP_PORT=${{secrets.PRO_APP_PORT}}\nDEV_DB_HOST=${{secrets.DEV_DB_HOST}}\nDEV_DB_NAME=${{secrets.DEV_DB_NAME}}\nPRO_DB_HOST=${{secrets.PRO_DB_HOST}}\nPRO_DB_PORT=${{secrets.PRO_DB_PORT}}\nPRO_DB_NAME=${{secrets.PRO_DB_NAME}}\nPRO_MONGODB_URL=${{secrets.PRO_MONGODB_URL}}\nTIMEOUT_REDIS=${{secrets.TIMEOUT_REDIS}}\nPORT_REDIS=${{secrets.PORT_REDIS}}\nUSERNAME_REDIS=${{secrets.USERNAME_REDIS}}\nPASSWORD_REDIS=${{secrets.PASSWORD_REDIS}}\nCLOUDINARY_CLOUD_NAME=${{secrets.CLOUDINARY_CLOUD_NAME}}\nCLOUDINARY_API_KEY=${{secrets.CLOUDINARY_API_KEY}}\nCLOUDINARY_API_SECRET=${{secrets.CLOUDINARY_API_SECRET}}'> .env
       - run: npm ci
       - run: pm2 restart server
