@@ -4,7 +4,6 @@ import { CREATED, OK } from '../core/success.res.js'
 import ProductService from '../services/product.service.js'
 class ProductController {
   static async createProduct(req, res) {
-    console.log(req.body)
     return new CREATED({
       message: 'Create product successful',
       metadata: await ProductService.createProduct(req.body.product_type, {
@@ -63,6 +62,21 @@ class ProductController {
       metadata: await ProductService.getOneProduct(req.query),
     }).send(res)
   }
+  static async getOnePublisedProduct(req, res) {
+    return new OK({
+      message: 'Get product successful',
+      metadata: await ProductService.getOnePublisedProduct(req.query),
+    }).send(res)
+  }
+  static async getOnePublisedProductBySlug(req, res) {
+    return new OK({
+      message: 'Get product successful',
+      metadata: await ProductService.getOnePublisedProductBySlug({
+        ...req.params,
+        ...req.query,
+      }),
+    }).send(res)
+  }
 
   static async updateProduct(req, res) {
     return new OK({
@@ -77,7 +91,7 @@ class ProductController {
 
   static async getPublishedProductByCategory(req, res) {
     return new OK({
-      message: 'Get product succussful',
+      message: 'Get product successful',
       metadata: await ProductService.getPublishedProductByCatergory({
         ...req.query,
         ...req.params,

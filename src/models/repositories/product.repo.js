@@ -42,7 +42,30 @@ const queryAll = ({ filter, limit = 50, skip = 1, select, sort }) => {
 }
 
 const getOneProduct = async ({ productId, unselect }) => {
-  return await products.productModel.findById(productId).select(unselect).lean()
+  return await products.productModel
+    .findById(convertStringToObjectId(productId))
+    .select(unselect)
+    .lean()
+}
+const getOnePublisedProduct = async ({ productId, unselect }) => {
+  return await products.productModel
+    .findone({
+      _id: convertStringToObjectId(productId),
+      isPublished: true,
+      isDraft: false,
+    })
+    .select(unselect)
+    .lean()
+}
+const getOnePublisedProductBySlug = async ({ product_slug, unselect }) => {
+  return await products.productModel
+    .findOne({
+      product_slug,
+      isPublished: true,
+      isDraft: false,
+    })
+    .select(unselect)
+    .lean()
 }
 
 const unpublishOneProduct = async (productId) => {
@@ -153,11 +176,17 @@ const checkProductIds = async (products) => {
     .catch(() => false)
 }
 
-const getPublishedProductByCatergory = async (product_type, limit, skip) => {
+const getPublishedProductByCatergory = async (
+  product_type,
+  limit,
+  skip,
+  select,
+) => {
   return await products.productModel
     .find({ product_type, isPublished: true, isDraft: false })
     .limit(limit)
     .skip(skip)
+    .select(select)
     .lean()
 }
 
@@ -189,4 +218,6 @@ export default {
   getPublishedProductByCatergory,
   updateProductQuantityById,
   getTotalPublishedProduct,
+  getOnePublisedProduct,
+  getOnePublisedProductBySlug,
 }

@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid'
 import logger from './core/logger.js'
 
 const database = Database.getInstance()
+database.connect('mongodb')
 database.connect('redis')
 
 const app = express()

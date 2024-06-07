@@ -14,64 +14,70 @@ const productSchema = new mongoose.Schema(
   {
     product_name: {
       type: String,
-      required: true
+      required: true,
+      unique: true,
     },
     product_thumb: {
       type: String,
-      required: true
+      required: true,
     },
     product_description: {
       type: String,
-      default: ''
+      default: '',
     },
     product_quantity: {
       type: Number,
-      required: true
+      required: true,
     },
     product_price: {
       type: Number,
-      required: true
+      required: true,
     },
     product_slug: {
-      type: String
+      type: String,
+      unique: true,
     },
     product_type: {
       type: String,
-      required: true
+      required: true,
     },
     product_attributes: {
       type: mongoose.Schema.Types.Mixed,
-      required: true
+      required: true,
     },
     product_rating: {
       type: Number,
       default: 4.5,
       max: [5, 'Rating must be less than 5'],
       min: [1, 'Rating must be more than 1'],
-      set: (val) => Math.round(val * 10) / 10
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    product_review_amout: {
+      type: Number,
+      default: 1,
     },
     product_variations: {
       type: Array,
-      default: []
+      default: [],
     },
     // this not to show
     isDraft: {
       type: Boolean,
       default: true,
       index: true,
-      select: false
+      select: false,
     },
     isPublished: {
       type: Boolean,
       default: false,
       index: true,
-      select: false
-    }
+      select: false,
+    },
   },
   {
     timestamps: true,
-    collection: COLLECTION_NAME
-  }
+    collection: COLLECTION_NAME,
+  },
 )
 
 //create index
@@ -88,25 +94,25 @@ const laptopSchema = new mongoose.Schema(
     CPU: { type: String },
     display: { type: String },
     RAM: {
-      type: String
+      type: String,
     },
     processor: {
-      type: String
+      type: String,
     },
     graphics: {
-      type: String
+      type: String,
     },
     storage: {
-      type: String
+      type: String,
     },
     OS: { type: String },
     battery: {
-      type: String
+      type: String,
     },
     weight: { type: String },
-    standard: { type: String }
+    standard: { type: String },
   },
-  { timestamps: true, collection: LAPTOP_COLLECTION }
+  { timestamps: true, collection: LAPTOP_COLLECTION },
 )
 
 const pcSchema = new mongoose.Schema(
@@ -116,9 +122,9 @@ const pcSchema = new mongoose.Schema(
     SSD: { type: String },
     HDD: { type: String },
     power: { type: String },
-    case: { type: String }
+    case: { type: String },
   },
-  { timestamps: true, collection: PC_COLLECTION }
+  { timestamps: true, collection: PC_COLLECTION },
 )
 
 const screenSchema = new mongoose.Schema(
@@ -128,14 +134,14 @@ const screenSchema = new mongoose.Schema(
     refreshRate: { type: String },
     colorDisplay: { type: String },
     synchronizationTechnology: { type: String },
-    videoPorts: { type: String }
+    videoPorts: { type: String },
   },
-  { timestamps: true, collection: SCREEN_COLLECTION }
+  { timestamps: true, collection: SCREEN_COLLECTION },
 )
 
 export default {
   productModel: mongoose.model(DOCUMENT_NAME, productSchema),
   laptopModel: mongoose.model(LAPTOP_DOCUMENT, laptopSchema),
   pcModel: mongoose.model(PC_DOCUMENT, pcSchema),
-  screenModel: mongoose.model(SCREEN_DOCUMENT, screenSchema)
+  screenModel: mongoose.model(SCREEN_DOCUMENT, screenSchema),
 }

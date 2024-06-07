@@ -55,4 +55,16 @@ const getOneCommentById = async ({ commentId, comment_isDeleted = false }) => {
   })
 }
 
-export { createComment, getOneCommentById }
+const getTotalReviewByProductId = async (comment_productId) => {
+  return await commentModel.aggregate([
+    {
+      $match: {
+        comment_productId: convertStringToObjectId(comment_productId),
+        comment_isDeleted: false,
+      },
+    },
+    { $count: 'total' },
+  ])
+}
+
+export { getTotalReviewByProductId, createComment, getOneCommentById }
