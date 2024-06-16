@@ -114,6 +114,16 @@ class VoucherService {
     })
   }
 
+  /**
+   * @argument voucherId
+   * @argument product = {
+   *  productId,
+   *  product_quantity,
+   *  product_price,
+   * }
+   * @argument userId
+   * @returns totalCost
+   */
   static async applyVoucher({
     voucherId,
     productId,
@@ -123,23 +133,13 @@ class VoucherService {
   }) {
     if (!product_price || !product_quantity || !productId || !userId)
       throw new BadRequestError('Something missing')
-    //check order value
-    const orderValue = VoucherService.calTotalOrderValue([
-      {
-        product_price,
-        product_quantity,
-      },
-    ])
+
     //validata voucher
     const foundVoucher = await findVoucherByIdPublish(voucherId)
 
-    if (!voucherId) {
-      console.log(voucherId)
-      return orderValue
-    }
     //check voucher exists
-    if (!foundVoucher) throw new VoucherInvalidError('Voucher not exists')
-    console.log('Oke')
+    if (!foundVoucher || voucherId)
+      throw new VoucherInvalidError('Voucher not exists')
 
     const {
       _id,
@@ -181,6 +181,13 @@ class VoucherService {
         throw new BadRequestError('Not enough goods')
     }
 
+    //check order value
+    const orderValue = VoucherService.calTotalOrderValue([
+      {
+        product_price,
+        product_quantity,
+      },
+    ])
     if (orderValue < voucher_min_order_value)
       throw new VoucherInvalidError(
         'The order does not meet the requirements to use the voucher',
