@@ -164,6 +164,41 @@ class OrderService {
 
     return result
   }
+
+  static async getOrder({
+    userId,
+    filter = 'all',
+    page = 1,
+    limit = 5,
+    sort = 'updateTime',
+    select,
+  }) {
+    if (!userId) throw new BadRequestError('not found userId')
+    const filterParam =
+      filter !== 'all' && typeof filter === 'object'
+        ? { order_user: convertStringToObjectId(userId), ...filter }
+        : { order_user: convertStringToObjectId(userId) }
+    const sortParam = sort !== 'updateTime' ? { updateAt: 1 } : { createAt: 1 }
+    const skip = (page - 1) * 5
+    const selectParams =
+      select && typeof select === 'object'
+        ? {
+            _id: 1,
+            order_products: 1,
+            ...select,
+          }
+        : {
+            _id: 1,
+            order_products: 1,
+          }
+    return await orderModel
+      .find(filterParam)
+      .skip(skip)
+      .limit(limit)
+      .sort(sortParam)
+      .select(selectParams)
+      .lean()
+  }
 }
 
 export default OrderService

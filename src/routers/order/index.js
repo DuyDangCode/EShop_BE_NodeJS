@@ -8,5 +8,6 @@ const orderRouter = express.Router()
 orderRouter.use(checkRoleCustomer)
 orderRouter.post('/review', asyncHandler(OrderController.checkout))
 orderRouter.post('', asyncHandler(OrderController.order))
+orderRouter.get('', asyncHandler(OrderController.getOrder))
 
 export default orderRouter
