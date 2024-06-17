@@ -14,6 +14,7 @@ import {
   updateVoucherById,
 } from '../models/repositories/voucher.repo.js'
 import { convertStringToObjectId } from '../utils/index.js'
+import CartServices from './cart.service.js'
 import { aquireLock, releaseLock } from './redis.service.js'
 import VoucherService from './voucher.service.js'
 
@@ -97,6 +98,7 @@ class OrderService {
     const aquireProducts = []
     const inventoryIds = []
     const productIndexs = []
+
     for (let i = 0; i < products.length; i++) {
       const lock = await aquireLock(
         products[i].productId,
@@ -140,17 +142,26 @@ class OrderService {
       order_products: productWithObjectIdArr,
       order_tracking: '',
     })
+
+    //update voucher and cart after order success
     for (let i = 0; i < products.length; i++) {
-      const update = {
-        $push: {
-          voucher_users_used: userId,
-        },
-        $inc: {
-          voucher_user_count: 1,
-        },
+      //updater voucher
+      if (products[i].voucherId) {
+        const update = {
+          $push: {
+            voucher_users_used: userId,
+          },
+          $inc: {
+            voucher_user_count: 1,
+          },
+        }
+        await updateVoucherById(products[i].voucherId, update)
       }
-      await updateVoucherById(products[i].voucherId, update)
+
+      //remove product from cart
+      await CartServices.removeProduct(userId, products[i].productId)
     }
+
     return result
   }
 }
