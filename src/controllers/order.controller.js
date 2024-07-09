@@ -23,6 +23,14 @@ class OrderController {
       metadata: await OrderService.getOrder({ userId, ...req.body }),
     }).send(res)
   }
+
+  static async getAmountOrder(req, res) {
+    const userId = req.headers[HEADERS.CLIENT]?.toString()
+    return new OK({
+      message: 'Get total order successful',
+      metadata: await OrderService.getAmountOrders({ userId, ...req.body }),
+    }).send(res)
+  }
 }
 
 export default OrderController

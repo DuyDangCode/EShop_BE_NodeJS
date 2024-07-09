@@ -199,6 +199,25 @@ class OrderService {
       .select(selectParams)
       .lean()
   }
+
+  static async getAmountOrders({ userId, filter }) {
+    if (!userId) throw new BadRequestError('not found userId')
+    const filterParam =
+      filter !== 'all' && typeof filter === 'object'
+        ? { order_user: convertStringToObjectId(userId), ...filter }
+        : { order_user: convertStringToObjectId(userId) }
+    console.log(filterParam)
+    const resultTotal = await orderModel.aggregate([
+      {
+        $match: filterParam,
+      },
+      {
+        $count: 'total',
+      },
+    ])
+
+    return resultTotal.length > 0 ? resultTotal?.[0] : { total: 0 }
+  }
 }
 
 export default OrderService
