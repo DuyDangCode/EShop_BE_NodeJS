@@ -125,5 +125,5 @@ export {
   checkPermission,
   authentication,
   checkRoleAdmin,
-  checkRoleCustomer
+  checkRoleCustomer,
 }

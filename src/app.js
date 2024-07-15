@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid'
 import logger from './core/logger.js'
 
 const database = Database.getInstance()
+database.connect('mongodb')
 database.connect('redis')
 
 const app = express()
@@ -25,7 +26,7 @@ app.use((req, res, next) => {
   req.requestId = req.headers['requestId'] || uuidv4()
   logger.logInfo('input params', {
     context: req.path,
-    request: req.requestId,
+    requestId: req.requestId,
     data: req.method === 'post' ? req.body : req.query,
   })
   next()

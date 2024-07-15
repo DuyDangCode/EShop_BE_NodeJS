@@ -1,7 +1,7 @@
 import {
   BadRequestError,
   InternalServerError,
-  OrderError
+  OrderError,
 } from '../core/error.res.js'
 import { statusCodes } from '../core/httpStatusCode/statusCodes.js'
 import orderModel from '../models/order.model.js'
@@ -11,9 +11,10 @@ import productRepo from '../models/repositories/product.repo.js'
 import { findUserWithId } from '../models/repositories/user.repo.js'
 import {
   findVoucherByIdPublish,
-  updateVoucherById
+  updateVoucherById,
 } from '../models/repositories/voucher.repo.js'
 import { convertStringToObjectId } from '../utils/index.js'
+import CartServices from './cart.service.js'
 import { aquireLock, releaseLock } from './redis.service.js'
 import VoucherService from './voucher.service.js'
 
@@ -36,24 +37,25 @@ class OrderService {
 
     //kiem tra cartid co ton tai
     const foundCart = await findCartByUserId(userId)
-    if (!foundCart) throw new BadRequestError('not found cart')
+    if (!foundCart) throw new BadRequestError('cart not found')
     //kiem tra userId trong cartId co giong nhau
-
     if (foundCart._id.toString() !== cartId)
-      throw new BadRequestError('not found cart')
+      throw new BadRequestError('cart not found')
+
     //kiem tra san pham
     //kiem tra san pham co ton tai va gia cua san pham co dung
     const isCheckProducts = await productRepo.checkProductIds(products)
-    if (!isCheckProducts) throw new OrderError('something wrong')
+    if (!isCheckProducts) throw new OrderError('product not found')
 
     const results = {
       totalCost: 0,
       feeShip: 0,
       totalDiscount: 0,
-      totalCheckout: 0
+      totalCheckout: 0,
     }
     //chua co kiem tra gia va so luong
     for (let i = 0; i < products.length; i++) {
+      const voucherId = products[i].voucherId
       results.totalCost +=
         products[i].product_price * products[i].product_quantity
 
@@ -62,13 +64,15 @@ class OrderService {
         product_price: products[i].product_price,
         product_quantity: products[i].product_quantity,
         productId: products[i].productId,
-        userId
+        userId,
       })
 
-      const { voucher_value } = await findVoucherByIdPublish(
-        products[i].voucherId
-      )
-      results.totalDiscount += voucher_value
+      let voucherValue = 0
+      if (voucherId) {
+        const { voucher_value } = await findVoucherByIdPublish(voucherId)
+        voucherValue = voucher_value
+      }
+      results.totalDiscount += voucherValue
     }
 
     return results
@@ -80,7 +84,7 @@ class OrderService {
     products,
     address,
     phone,
-    order_payment
+    order_payment,
   }) {
     if (!cartId || !userId || !products || !address || !phone || !order_payment)
       throw new BadRequestError('something is missed')
@@ -88,17 +92,18 @@ class OrderService {
     const checkoutContent = await OrderService.review({
       cartId,
       userId,
-      products
+      products,
     })
 
     const aquireProducts = []
     const inventoryIds = []
     const productIndexs = []
+
     for (let i = 0; i < products.length; i++) {
       const lock = await aquireLock(
         products[i].productId,
         products[i].product_quantity,
-        cartId
+        cartId,
       )
       if (lock) {
         releaseLock(lock.key)
@@ -116,7 +121,7 @@ class OrderService {
           const result = await inventoryRepo.returnGoodsInventory(
             inventoryIds[i],
             products[productIndexs[i]].product_quantity,
-            cartId
+            cartId,
           )
         }
       } catch (error) {
@@ -125,26 +130,93 @@ class OrderService {
       throw new BadRequestError('Sold out')
     }
 
+    const productWithObjectIdArr = products.map((product) => {
+      product.productId = convertStringToObjectId(product.productId)
+      return product
+    })
     const result = await orderModel.create({
       order_user: convertStringToObjectId(userId),
       order_checkout: checkoutContent,
       order_shipping: address,
       order_payment: order_payment,
-      order_products: products,
-      order_tracking: ''
+      order_products: productWithObjectIdArr,
+      order_tracking: '',
     })
+
+    //update voucher and cart after order success
     for (let i = 0; i < products.length; i++) {
-      const update = {
-        $push: {
-          voucher_users_used: userId
-        },
-        $inc: {
-          voucher_user_count: 1
+      //updater voucher
+      if (products[i].voucherId) {
+        const update = {
+          $push: {
+            voucher_users_used: userId,
+          },
+          $inc: {
+            voucher_user_count: 1,
+          },
         }
+        await updateVoucherById(products[i].voucherId, update)
       }
-      await updateVoucherById(products[i].voucherId, update)
+
+      //remove product from cart
+      await CartServices.removeProduct(userId, products[i].productId)
     }
+
     return result
+  }
+
+  static async getOrder({
+    userId,
+    filter = 'all',
+    page = 1,
+    limit = 5,
+    sort = 'updateTime',
+    select,
+  }) {
+    if (!userId) throw new BadRequestError('not found userId')
+    const filterParam =
+      filter !== 'all' && typeof filter === 'object'
+        ? { order_user: convertStringToObjectId(userId), ...filter }
+        : { order_user: convertStringToObjectId(userId) }
+    const sortParam = sort !== 'updateTime' ? { updateAt: 1 } : { createAt: 1 }
+    const skip = (page - 1) * 5
+    const selectParams =
+      select && typeof select === 'object'
+        ? {
+            _id: 1,
+            order_products: 1,
+            ...select,
+          }
+        : {
+            _id: 1,
+            order_products: 1,
+          }
+    return await orderModel
+      .find(filterParam)
+      .skip(skip)
+      .limit(limit)
+      .sort(sortParam)
+      .select(selectParams)
+      .lean()
+  }
+
+  static async getAmountOrders({ userId, filter }) {
+    if (!userId) throw new BadRequestError('not found userId')
+    const filterParam =
+      filter !== 'all' && typeof filter === 'object'
+        ? { order_user: convertStringToObjectId(userId), ...filter }
+        : { order_user: convertStringToObjectId(userId) }
+    console.log(filterParam)
+    const resultTotal = await orderModel.aggregate([
+      {
+        $match: filterParam,
+      },
+      {
+        $count: 'total',
+      },
+    ])
+
+    return resultTotal.length > 0 ? resultTotal?.[0] : { total: 0 }
   }
 }
 

@@ -17,7 +17,7 @@ class ConfigRequestError extends ErrorRes {
 class BadRequestError extends ErrorRes {
   constructor(
     message = reasonPharses.BAD_REQUEST,
-    status = statusCodes.BAD_REQUEST
+    status = statusCodes.BAD_REQUEST,
   ) {
     super(message, status)
   }
@@ -26,7 +26,7 @@ class BadRequestError extends ErrorRes {
 class ForbiddenError extends ErrorRes {
   constructor({
     message = reasonPharses.FORBIDDEN,
-    status = statusCodes.FORBIDDEN
+    status = statusCodes.FORBIDDEN,
   }) {
     super(message, status)
   }
@@ -35,7 +35,7 @@ class ForbiddenError extends ErrorRes {
 class AuthFailError extends ErrorRes {
   constructor(
     message = reasonPharses.BAD_REQUEST,
-    status = statusCodes.BAD_REQUEST
+    status = statusCodes.BAD_REQUEST,
   ) {
     super(message, status)
   }
@@ -44,7 +44,7 @@ class AuthFailError extends ErrorRes {
 class VoucherInvalidError extends ErrorRes {
   constructor(
     message = reasonPharses.BAD_REQUEST,
-    status = statusCodes.BAD_REQUEST
+    status = statusCodes.BAD_REQUEST,
   ) {
     super(message, status)
   }
@@ -53,7 +53,7 @@ class VoucherInvalidError extends ErrorRes {
 class RedisError extends ErrorRes {
   constructor(
     message = 'redis has some error',
-    status = statusCodes.INTERNAL_SERVER_ERROR
+    status = statusCodes.INTERNAL_SERVER_ERROR,
   ) {
     super(message, status)
   }
@@ -62,7 +62,7 @@ class RedisError extends ErrorRes {
 class InternalServerError extends ErrorRes {
   constructor(
     message = 'something went wrong',
-    status = statusCodes.INTERNAL_SERVER_ERROR
+    status = statusCodes.INTERNAL_SERVER_ERROR,
   ) {
     super(message, status)
   }
@@ -82,5 +82,5 @@ export {
   VoucherInvalidError,
   RedisError,
   OrderError,
-  InternalServerError
+  InternalServerError,
 }

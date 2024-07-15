@@ -6,7 +6,7 @@ import {
   createVoucher,
   findVoucherByCode,
   findVoucherByIdPublish,
-  updateVoucherById
+  updateVoucherById,
 } from '../models/repositories/voucher.repo.js'
 
 class VoucherService {
@@ -17,12 +17,12 @@ class VoucherService {
 
     if (endDay < currentDay)
       throw new VoucherInvalidError(
-        'The end date cannot be less than the current date'
+        'The end date cannot be less than the current date',
       )
 
     if (startDay > endDay)
       throw new VoucherInvalidError(
-        'The start date cannot be greater than the end date'
+        'The start date cannot be greater than the end date',
       )
   }
 
@@ -39,7 +39,7 @@ class VoucherService {
     return products.reduce(
       (total, product) =>
         total + product.product_price * product.product_quantity,
-      0
+      0,
     )
   }
 
@@ -57,7 +57,7 @@ class VoucherService {
     voucher_min_order_value,
     voucher_is_activate,
     voucher_applies_to,
-    voucher_product_ids
+    voucher_product_ids,
   }) {
     VoucherService.validateDate({ voucher_start_day, voucher_end_day })
 
@@ -77,7 +77,7 @@ class VoucherService {
       voucher_min_order_value,
       voucher_is_activate,
       voucher_applies_to,
-      voucher_product_ids
+      voucher_product_ids,
     })
   }
 
@@ -95,7 +95,7 @@ class VoucherService {
     voucher_min_order_value,
     voucher_is_activate,
     voucher_applies_to,
-    voucher_product_ids
+    voucher_product_ids,
   }) {
     VoucherService.validateDate({ voucher_start_day, voucher_end_day })
     return await updateVoucherById(_id, {
@@ -110,41 +110,36 @@ class VoucherService {
       voucher_min_order_value,
       voucher_is_activate,
       voucher_applies_to,
-      voucher_product_ids
+      voucher_product_ids,
     })
   }
 
-  /**
-   * @argument voucherId
-   * @argument product = {
-   *  productId,
-   *  product_quantity,
-   *  product_price,
-   * }
-   * @argument userId
-   * @returns totalCost
-   */
   static async applyVoucher({
     voucherId,
     productId,
     product_quantity,
     product_price,
-    userId
+    userId,
   }) {
-    if (
-      !voucherId ||
-      !product_price ||
-      !product_quantity ||
-      !productId ||
-      !userId
-    )
-      throw new BadRequestError('Something wrong')
-
+    if (!product_price || !product_quantity || !productId || !userId)
+      throw new BadRequestError('Something missing')
+    //check order value
+    const orderValue = VoucherService.calTotalOrderValue([
+      {
+        product_price,
+        product_quantity,
+      },
+    ])
     //validata voucher
     const foundVoucher = await findVoucherByIdPublish(voucherId)
 
+    if (!voucherId) {
+      console.log(voucherId)
+      return orderValue
+    }
     //check voucher exists
     if (!foundVoucher) throw new VoucherInvalidError('Voucher not exists')
+    console.log('Oke')
 
     const {
       _id,
@@ -158,7 +153,7 @@ class VoucherService {
       voucher_product_ids,
       voucher_type,
       voucher_value,
-      voucher_max_uses
+      voucher_max_uses,
     } = foundVoucher
 
     //check voucher date
@@ -176,28 +171,19 @@ class VoucherService {
 
     //check product
     if (voucher_applies_to === 'specific') {
-      products.map(async (product) => {
-        const foundProduct = await productRepo.findProductByIdPublish(productId)
-        if (!foundProduct) throw new BadRequestError('Cant find product')
+      const foundProduct = await productRepo.findProductByIdPublish(productId)
+      if (!foundProduct) throw new BadRequestError('Cant find product')
 
-        if (!voucher_product_ids.includes(foundProduct._id))
-          throw new BadRequestError('Invalid product')
+      if (!voucher_product_ids.includes(foundProduct._id))
+        throw new BadRequestError('Invalid product')
 
-        if (foundProduct.product_quantity < product.product_quantity)
-          throw new BadRequestError('Not enough goods')
-      })
+      if (foundProduct.product_quantity < product.product_quantity)
+        throw new BadRequestError('Not enough goods')
     }
 
-    //check order value
-    const orderValue = VoucherService.calTotalOrderValue([
-      {
-        product_price,
-        product_quantity
-      }
-    ])
     if (orderValue < voucher_min_order_value)
       throw new VoucherInvalidError(
-        'The order does not meet the requirements to use the voucher'
+        'The order does not meet the requirements to use the voucher',
       )
 
     if (voucher_type === 'fixed_amount') {

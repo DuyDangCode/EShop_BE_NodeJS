@@ -86,6 +86,9 @@ class ProductService {
         'product_thumb',
         'product_price',
         'product_rating',
+        'product_quantity',
+        'product_review_amout',
+        'product_slug',
       ]),
     })
   }
@@ -103,8 +106,23 @@ class ProductService {
   }
 
   static async getOneProduct({ productId, unselect }) {
+    if (!productId) throw new BadRequestError('Not found product id')
     return await productRepo.getOneProduct({
       productId,
+      unselect: unselectData([...splitQueryString(unselect), '__v']),
+    })
+  }
+  static async getOnePublisedProduct({ productId, unselect }) {
+    if (!productId) throw new BadRequestError('Not found product id')
+    return await productRepo.getOnePublisedProduct({
+      productId,
+      unselect: unselectData([...splitQueryString(unselect), '__v']),
+    })
+  }
+  static async getOnePublisedProductBySlug({ product_slug, unselect }) {
+    if (!product_slug) throw new BadRequestError('Not found product slug')
+    return await productRepo.getOnePublisedProductBySlug({
+      product_slug,
       unselect: unselectData([...splitQueryString(unselect), '__v']),
     })
   }
@@ -117,16 +135,32 @@ class ProductService {
 
   static async getPublishedProductByCatergory({
     product_type,
+    select = '',
     limit = 10,
     page = 1,
   }) {
     if (!product_type) throw new BadRequestError('Product type is required')
     const skip = (page - 1) * limit
+    const selectArr = getSelectData([
+      ...splitQueryString(select),
+      'product_name',
+      'product_thumb',
+      'product_price',
+      'product_rating',
+      'product_quantity',
+      'product_review_amout',
+      'product_slug',
+    ])
     return await productRepo.getPublishedProductByCatergory(
       product_type,
       limit,
       skip,
+      selectArr,
     )
+  }
+
+  static async getTotalPublisedProduct(product_type) {
+    return await productRepo.getTotalPublishedProduct(product_type)
   }
 }
 
