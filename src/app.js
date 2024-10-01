@@ -13,10 +13,11 @@ import cors from 'cors'
 import { BASE_URL_V1 } from './constrant/system.constrant.js'
 import { v4 as uuidv4 } from 'uuid'
 import logger from './core/logger.js'
+import mongoSanitize from 'express-mongo-sanitize'
 
 const database = Database.getInstance()
 database.connect('mongodb')
-// database.connect('redis')
+database.connect('redis')
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.use((req, res, next) => {
 // checkOverload()
 
 app.use(cors())
+app.use(mongoSanitize())
 app.use(morgan('dev'))
 app.use(compression())
 app.use(helmet())
