@@ -24,6 +24,16 @@ class OrderController {
     }).send(res)
   }
 
+  static async getOrderDetail(req, res) {
+    return new OK({
+      message: 'Get order detail successful',
+      metadata: await OrderService.getOrderDetail({
+        userId,
+        orderId: req.param.orderId,
+      }),
+    }).send(res)
+  }
+
   static async getAmountOrder(req, res) {
     const userId = req.headers[HEADERS.CLIENT]?.toString()
     return new OK({

@@ -218,6 +218,10 @@ class OrderService {
 
     return resultTotal.length > 0 ? resultTotal?.[0] : { total: 0 }
   }
+
+  static async getOrderDetail({ userId, orderId }) {
+    if (!userId) throw new BadRequestError('not found userId')
+  }
 }
 
 export default OrderService

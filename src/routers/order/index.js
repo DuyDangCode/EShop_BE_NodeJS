@@ -10,5 +10,9 @@ orderRouter.post('/review', asyncHandler(OrderController.checkout))
 orderRouter.post('', asyncHandler(OrderController.order))
 orderRouter.post('/all', asyncHandler(OrderController.getOrder))
 orderRouter.post('/total', asyncHandler(OrderController.getAmountOrder))
+orderRouter.post(
+  '/detail/:orderId',
+  asyncHandler(OrderController.getAmountOrder),
+)
 
 export default orderRouter

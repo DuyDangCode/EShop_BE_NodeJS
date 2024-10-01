@@ -16,7 +16,7 @@ import logger from './core/logger.js'
 
 const database = Database.getInstance()
 database.connect('mongodb')
-database.connect('redis')
+// database.connect('redis')
 
 const app = express()
 
@@ -31,8 +31,10 @@ app.use((req, res, next) => {
   })
   next()
 })
+
 // countConnet()
 // checkOverload()
+
 app.use(cors())
 app.use(morgan('dev'))
 app.use(compression())
