@@ -15,12 +15,18 @@ import { v4 as uuidv4 } from 'uuid'
 import logger from './core/logger.js'
 import mongoSanitize from 'express-mongo-sanitize'
 import hpp from 'hpp'
+import rateLimit from 'express-rate-limit'
+import rateLimitingConfig from './configs/rateLimiting.config.js'
 
 const database = Database.getInstance()
 database.connect('mongodb')
 database.connect('redis')
 
 const app = express()
+
+const limiter = rateLimit({
+  ...rateLimitingConfig,
+})
 
 // middleware
 
@@ -34,10 +40,11 @@ app.use((req, res, next) => {
   next()
 })
 
-// countConnet()
-// checkOverload()
+countConnet()
+checkOverload()
 
 app.use(cors())
+app.use(limiter)
 app.use(morgan('dev'))
 app.use(compression())
 app.use(helmet())
