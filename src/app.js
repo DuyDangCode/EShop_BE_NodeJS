@@ -14,6 +14,7 @@ import { BASE_URL_V1 } from './constrant/system.constrant.js'
 import { v4 as uuidv4 } from 'uuid'
 import logger from './core/logger.js'
 import mongoSanitize from 'express-mongo-sanitize'
+import hpp from 'hpp'
 
 const database = Database.getInstance()
 database.connect('mongodb')
@@ -37,11 +38,12 @@ app.use((req, res, next) => {
 // checkOverload()
 
 app.use(cors())
-app.use(mongoSanitize())
 app.use(morgan('dev'))
 app.use(compression())
 app.use(helmet())
 app.use(express.json())
+app.use(mongoSanitize())
+app.use(hpp())
 app.use(
   express.urlencoded({
     extended: true,

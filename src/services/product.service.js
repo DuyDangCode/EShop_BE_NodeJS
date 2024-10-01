@@ -15,13 +15,14 @@ class ProductService {
     ProductService.productRegister[name] = classRef
   }
   static async createProduct(type, payload) {
+    const productAttributes = payload.product_attributes
     if (
       !payload.product_name ||
       !payload.product_description ||
       !payload.product_quantity ||
       !payload.product_price ||
       !payload.product_type ||
-      !payload.product_attributes ||
+      !productAttributes ||
       !payload.originalname ||
       !payload.buffer ||
       !payload.userId
@@ -29,7 +30,7 @@ class ProductService {
       throw new BadRequestError('Something missed')
     }
 
-    payload.product_attributes = JSON.parse(payload.product_attributes)
+    payload.product_attributes = JSON.parse(productAttributes)
     const productClass = ProductService.productRegister[type]
     if (!productClass) throw new BadRequestError('Not find class')
     return await new productClass(payload).createProduct()
