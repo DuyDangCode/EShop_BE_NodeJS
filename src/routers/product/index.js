@@ -11,12 +11,21 @@ productRouter.get(
   asyncHandler(ProductController.getAllProductPublied),
 )
 productRouter.get(
+  '/published/one/:product_slug',
+  asyncHandler(ProductController.getOnePublisedProductBySlug),
+)
+productRouter.get(
+  '/published/total',
+  asyncHandler(ProductController.getTotalPublishedProduct),
+)
+productRouter.get(
   '/published/:product_type',
   asyncHandler(ProductController.getPublishedProductByCategory),
 )
 
 productRouter.get('/search/:keyword', asyncHandler(ProductController.search))
 productRouter.get('', asyncHandler(ProductController.getOneProduct))
+
 productRouter.use(checkRoleAdmin)
 productRouter.post(
   '',
@@ -37,5 +46,4 @@ productRouter.post(
   asyncHandler(ProductController.unPublishOneProduct),
 )
 productRouter.get('/all', asyncHandler(ProductController.getAllProduct))
-
 export default productRouter

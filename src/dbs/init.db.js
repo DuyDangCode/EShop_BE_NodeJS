@@ -3,13 +3,11 @@ import { initRedis } from './init.redis.js'
 
 const actions = {
   mongodb: connectMongoDb,
-  redis: initRedis
+  redis: initRedis,
 }
 
 class Database {
-  constructor(type = 'mongodb') {
-    this.connect(type)
-  }
+  constructor() {}
 
   connect(type) {
     actions[type]()

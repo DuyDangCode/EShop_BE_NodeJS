@@ -4,7 +4,7 @@ import cartModel from '../models/cart.model.js'
 import productModel from '../models/product.model.js'
 import {
   createCart,
-  findCartByUserId
+  findCartByUserId,
 } from '../models/repositories/cart.repo.js'
 import productRepo from '../models/repositories/product.repo.js'
 import { findUserWithId } from '../models/repositories/user.repo.js'
@@ -45,8 +45,8 @@ class CartServices {
    */
   static async addProduct({ userId, product }) {
     //check product
-    const validProducts = await productRepo.checkProduct(product)
-    if (!validProducts) throw new BadRequestError('Cant find product')
+    const validProduct = await productRepo.checkProduct(product)
+    if (!validProduct) throw new BadRequestError('Cant find product')
     //add product
 
     let cart = await findCartByUserId(userId)
@@ -55,7 +55,7 @@ class CartServices {
 
     const updateProductExists = await CartServices.updateQuantityV2(
       userId,
-      product
+      product,
     ) //update if produt exist in cart
     if (updateProductExists) {
       return updateProductExists
@@ -68,12 +68,15 @@ class CartServices {
           $push: {
             cart_products: {
               productId: productIdObjet,
-              productQuantity: product.productQuantity
-            }
+              product_thumb: validProduct.product_thumb,
+              product_name: validProduct.product_name,
+              product_price: validProduct.product_price,
+              productQuantity: product.productQuantity,
+            },
           },
-          $inc: { cart_count: 1 }
+          $inc: { cart_count: 1 },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       )
       .lean()
   }
@@ -85,7 +88,7 @@ class CartServices {
     //check product
     const validProducts = await productRepo.checkProduct({
       productId,
-      productQuantity
+      productQuantity,
     })
 
     if (!validProducts) throw new BadRequestError('Cant find product')
@@ -95,13 +98,13 @@ class CartServices {
         userId: convertStringToObjectId(userId),
         'cart_products.productId': convertStringToObjectId(productId),
         'cart_products.productQuantity': { $ne: newQuantity },
-        'cart_products.productQuantity': { $eq: oldQuantity }
+        'cart_products.productQuantity': { $eq: oldQuantity },
       },
       {
         $inc: {
-          'cart_products.$.productQuantity': productQuantity
-        }
-      }
+          'cart_products.$.productQuantity': productQuantity,
+        },
+      },
     )
 
     if (updateProductExists.modifiedCount || updateProductExists.upsertedCount)
@@ -117,13 +120,13 @@ class CartServices {
     const updateProductExists = await cartModel.updateOne(
       {
         userId: convertStringToObjectId(userId),
-        'cart_products.productId': convertStringToObjectId(productId)
+        'cart_products.productId': convertStringToObjectId(productId),
       },
       {
         $inc: {
-          'cart_products.$.productQuantity': productQuantity
-        }
-      }
+          'cart_products.$.productQuantity': productQuantity,
+        },
+      },
     )
 
     if (updateProductExists.modifiedCount || updateProductExists.upsertedCount)
@@ -141,21 +144,21 @@ class CartServices {
       .findOneAndUpdate(
         {
           userId: convertStringToObjectId(userId),
-          'cart_products.productId': convertStringToObjectId(productId)
+          'cart_products.productId': convertStringToObjectId(productId),
         },
         {
           $pull: {
             cart_products: {
-              productId: productIdObject
-            }
+              productId: productIdObject,
+            },
           },
           $inc: {
-            cart_count: -1
-          }
+            cart_count: -1,
+          },
         },
         {
-          new: true
-        }
+          new: true,
+        },
       )
       .lean()
   }
@@ -164,15 +167,15 @@ class CartServices {
   static async removeCart(userId) {
     return await cartModel
       .findOneAndUpdate(
-        { userId: convertStringToObjectId(userId) },
+        { userId: userId },
         {
           cart_products: [],
-          cart_count: 0
+          cart_count: 0,
         },
         {
           upsert: true,
-          new: true
-        }
+          new: true,
+        },
       )
       .lean()
   }
