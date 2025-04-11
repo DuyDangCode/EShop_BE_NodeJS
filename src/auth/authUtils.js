@@ -5,12 +5,12 @@ const createTokenPair = (payload, privateKey) => {
   try {
     const accessToken = JWT.sign(payload, privateKey, {
       algorithm: 'RS256',
-      expiresIn: '1 days'
+      expiresIn: '1 days',
     })
 
     const refreshToken = JWT.sign(payload, privateKey, {
       algorithm: 'RS256',
-      expiresIn: '30 days'
+      expiresIn: '30 days',
     })
     return accessToken && refreshToken ? { accessToken, refreshToken } : null
   } catch (error) {
