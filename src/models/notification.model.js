@@ -1,3 +1,4 @@
+import { referrerPolicy } from 'helmet'
 import { model, Schema } from 'mongoose'
 
 const COLLECTION_NAME = 'notifications'
@@ -16,7 +17,8 @@ const notificationSchema = new Schema(
       required: true,
     },
     noti_receiver: {
-      type: Number,
+      type: Schema.Types.ObjectId,
+      ref: 'user',
       required: true,
     },
     noti_content: {
